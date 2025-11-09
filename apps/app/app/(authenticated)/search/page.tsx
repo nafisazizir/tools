@@ -1,6 +1,5 @@
-import { auth } from "@repo/auth/server";
 import { database } from "@repo/database";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { Header } from "../components/header";
 
 type SearchPageProperties = {
@@ -22,6 +21,11 @@ export const generateMetadata = async ({
 
 const SearchPage = async ({ searchParams }: SearchPageProperties) => {
   const { q } = await searchParams;
+
+  if (!q) {
+    redirect("/");
+  }
+
   const pages = await database.page.findMany({
     where: {
       name: {
@@ -29,15 +33,6 @@ const SearchPage = async ({ searchParams }: SearchPageProperties) => {
       },
     },
   });
-  const { orgId } = await auth();
-
-  if (!orgId) {
-    notFound();
-  }
-
-  if (!q) {
-    redirect("/");
-  }
 
   return (
     <>
@@ -50,7 +45,7 @@ const SearchPage = async ({ searchParams }: SearchPageProperties) => {
             </div>
           ))}
         </div>
-        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+        <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
       </div>
     </>
   );
