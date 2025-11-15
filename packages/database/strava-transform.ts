@@ -21,7 +21,7 @@ export function summaryActivityToPrisma(
     sport_type: activity.sport_type,
 
     start_date: new Date(activity.start_date),
-    start_date_local: new Date(activity.start_date_local),
+    start_date_local: new Date(activity.start_date_local.replace("Z", "")), // bug in Strava API include 'Z' in local time
     timezone: activity.timezone,
 
     distance: activity.distance,
