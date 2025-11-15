@@ -2,6 +2,7 @@
 
 import type { StravaActivity } from "@repo/database";
 import { Button } from "@repo/design-system/components/ui/button";
+import { Calendar } from "@repo/design-system/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -19,6 +20,13 @@ import {
   CommandList,
   CommandSeparator,
 } from "@repo/design-system/components/ui/command";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@repo/design-system/components/ui/empty";
 import { Label } from "@repo/design-system/components/ui/label";
 import {
   Popover,
@@ -26,9 +34,10 @@ import {
   PopoverTrigger,
 } from "@repo/design-system/components/ui/popover";
 import { cn } from "@repo/design-system/lib/utils";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, FolderX } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { getSportTypeIcon, getSportTypeLabel } from "@/lib/strava-sport-types";
 import {
   formatDateTime,
@@ -41,12 +50,16 @@ type ActivitiesListClientProps = {
   activities: StravaActivity[];
 };
 
+const START_OF_DAY = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
+const END_OF_DAY = { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 };
+
 export const ActivitiesListClient = ({
   activities,
 }: ActivitiesListClientProps) => {
   const [selectedSportTypes, setSelectedSportTypes] = useState<Set<string>>(
     new Set()
   );
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const availableSportTypes = useMemo(() => {
     const types = new Set(activities.map((a) => a.sport_type));
@@ -54,13 +67,42 @@ export const ActivitiesListClient = ({
   }, [activities]);
 
   const filteredActivities = useMemo(() => {
-    if (selectedSportTypes.size === 0) {
-      return activities;
+    let filtered = activities;
+
+    if (selectedSportTypes.size > 0) {
+      filtered = filtered.filter((activity) =>
+        selectedSportTypes.has(activity.sport_type)
+      );
     }
-    return activities.filter((activity) =>
-      selectedSportTypes.has(activity.sport_type)
-    );
-  }, [activities, selectedSportTypes]);
+
+    if (dateRange?.from) {
+      filtered = filtered.filter((activity) => {
+        const activityDate = new Date(activity.start_date);
+        const fromDate = dateRange.from ? dateRange.from : new Date();
+        fromDate.setHours(
+          START_OF_DAY.hours,
+          START_OF_DAY.minutes,
+          START_OF_DAY.seconds,
+          START_OF_DAY.milliseconds
+        );
+
+        if (dateRange.to) {
+          const toDate = new Date(dateRange.to);
+          toDate.setHours(
+            END_OF_DAY.hours,
+            END_OF_DAY.minutes,
+            END_OF_DAY.seconds,
+            END_OF_DAY.milliseconds
+          );
+          return activityDate >= fromDate && activityDate <= toDate;
+        }
+
+        return activityDate >= fromDate;
+      });
+    }
+
+    return filtered;
+  }, [activities, selectedSportTypes, dateRange]);
 
   const toggleSportType = (sportType: string) => {
     const newSet = new Set(selectedSportTypes);
@@ -76,30 +118,37 @@ export const ActivitiesListClient = ({
     setSelectedSportTypes(new Set());
   };
 
+  const formatDateRangeDisplay = (range: DateRange | undefined): string => {
+    if (!range?.from) {
+      return "";
+    }
+
+    const formatDate = (date: Date) =>
+      date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+
+    if (!range.to) {
+      return formatDate(range.from);
+    }
+
+    return `${formatDate(range.from)} - ${formatDate(range.to)}`;
+  };
+
   if (activities.length === 0) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Image
-              alt="Activities"
-              className="h-5 w-5"
-              height={20}
-              src="/icons/dumbbell-regular-full.svg"
-              width={20}
-            />
-            Recent Activities
-          </CardTitle>
-          <CardDescription>
-            Your latest workouts will appear here
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-muted-foreground">
-            No activities synced yet. Click "Sync Activities" to get started.
-          </p>
-        </CardContent>
-      </Card>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FolderX />
+          </EmptyMedia>
+          <EmptyTitle>No Activities Yet</EmptyTitle>
+          <EmptyDescription>
+            No activities synced yet. Your latest workouts will appear here
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -169,12 +218,52 @@ export const ActivitiesListClient = ({
             </Command>
           </PopoverContent>
         </Popover>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              className={cn(
+                "rounded-full",
+                dateRange?.from
+                  ? "bg-accent"
+                  : "font-normal text-muted-foreground hover:text-muted-foreground"
+              )}
+              size={"sm"}
+              variant="ghost"
+            >
+              Date
+              {dateRange?.from && (
+                <>
+                  :
+                  <span className="inline-block max-w-[150px] truncate font-normal">
+                    {formatDateRangeDisplay(dateRange)}
+                  </span>
+                </>
+              )}
+              <ChevronDown />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-auto p-0">
+            <Calendar
+              defaultMonth={
+                dateRange?.from ||
+                (activities.length > 0
+                  ? new Date(activities[0].start_date)
+                  : new Date())
+              }
+              mode="range"
+              numberOfMonths={1}
+              onSelect={setDateRange}
+              selected={dateRange}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Activities List */}
       <div className="space-y-3">
         {filteredActivities.map((activity) => {
-          const date = new Date(activity.start_date);
+          const date = new Date(activity.start_date_local);
           const distance = activity.distance
             ? (activity.distance / METERS_PER_KM).toFixed(2)
             : null;
@@ -210,7 +299,7 @@ export const ActivitiesListClient = ({
                 <CardDescription>
                   <div className="flex flex-row gap-1">
                     <span className="text-muted-foreground text-sm">
-                      {formatDateTime(date, activity.timezone.split(" ")[1])}
+                      {formatDateTime(date)}
                     </span>
                     {activity.device_name && (
                       <span className="text-muted-foreground text-sm">

@@ -25,16 +25,12 @@ export function formatPace(secondsPerKm: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")} /km`;
 }
 
-export function formatDateTime(
-  date: Date,
-  timeZone = "Australia/Brisbane"
-): string {
+export function formatDateTime(date: Date): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / MS_PER_DAY);
 
   const timeString = date.toLocaleTimeString("en-US", {
-    timeZone,
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -47,7 +43,6 @@ export function formatDateTime(
     return `Yesterday at ${timeString}`;
   }
   return `${date.toLocaleDateString("en-US", {
-    timeZone,
     month: "long",
     day: "numeric",
     year: "numeric",
