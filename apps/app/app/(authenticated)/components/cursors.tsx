@@ -15,7 +15,7 @@ const Cursor = ({
   y: number;
 }) => (
   <div
-    className="pointer-events-none absolute top-0 left-0 z-[999] select-none transition-transform duration-100"
+    className="pointer-events-none absolute top-0 left-0 z-999 select-none transition-transform duration-100"
     style={{
       transform: `translateX(${x}px) translateY(${y}px)`,
     }}

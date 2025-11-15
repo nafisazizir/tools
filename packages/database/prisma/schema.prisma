@@ -19,3 +19,101 @@ model Page {
   id   Int    @id @default(autoincrement())
   name String
 }
+
+model StravaConnection {
+  id           Int      @id @default(1)
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  athleteId    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model StravaActivity {
+  id            String  @id
+  external_id   String?
+  upload_id     String?
+  upload_id_str String?
+
+  athlete_id String
+
+  name                 String
+  distance             Float
+  moving_time          Int
+  elapsed_time         Int
+  total_elevation_gain Float
+  elev_high            Float?
+  elev_low             Float?
+
+  type       String? // deprecated by Strava
+  sport_type String
+
+  start_date       DateTime
+  start_date_local DateTime
+  timezone         String
+
+  start_latlng Json? // StravaLatLng
+  end_latlng   Json? // StravaLatLng
+
+  achievement_count Int @default(0)
+  kudos_count       Int @default(0)
+  comment_count     Int @default(0)
+  athlete_count     Int @default(0)
+  photo_count       Int @default(0)
+  total_photo_count Int @default(0)
+
+  map Json? // StravaPolylineMap
+
+  device_name String?
+  trainer     Boolean @default(false)
+  commute     Boolean @default(false)
+  manual      Boolean @default(false)
+  private     Boolean @default(false)
+  flagged     Boolean @default(false)
+
+  workout_type Int?
+
+  average_speed Float // m/s
+  max_speed     Float // m/s
+
+  has_kudoed     Boolean @default(false)
+  hide_from_home Boolean @default(false)
+
+  gear_id String?
+
+  kilojoules             Float? // rides only
+  average_watts          Float? // rides only
+  device_watts           Boolean @default(false)
+  max_watts              Float?
+  weighted_average_watts Float?
+
+  description String? // only in detailed
+
+  photos   Json? // StravaPhotosSummary (detailed)
+  gear     Json? // StravaSummaryGear (detailed)
+  calories Float? // only in detailed
+
+  segment_efforts Json? // DetailedSegmentEffort[] (detailed)
+  best_efforts    Json? // DetailedSegmentEffort[] (detailed)
+
+  splits_metric   Json? // StravaSplit[] (detailed)
+  splits_standard Json? // StravaSplit[] (detailed)
+  laps            Json? // StravaLap[] (detailed)
+
+  zones Json? // StravaActivityZone[] (detailed)
+
+  average_cadence   Float?
+  has_heartrate     Boolean @default(false)
+  average_heartrate Float?
+  max_heartrate     Float?
+
+  lastSyncedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([athlete_id])
+  @@index([athlete_id, start_date])
+  @@index([sport_type])
+  @@index([start_date])
+}

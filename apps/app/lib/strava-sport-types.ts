@@ -1,0 +1,70 @@
+import type { StravaSportType } from "@repo/database";
+
+export function getSportTypeLabel(sportType: StravaSportType | string): string {
+  const labels: Record<string, string> = {
+    AlpineSki: "Alpine Ski",
+    BackcountrySki: "Backcountry Ski",
+    Badminton: "Badminton",
+    Canoeing: "Canoeing",
+    Crossfit: "CrossFit",
+    EBikeRide: "E-Bike Ride",
+    Elliptical: "Elliptical",
+    EMountainBikeRide: "E-Mountain Bike",
+    Golf: "Golf",
+    GravelRide: "Gravel Ride",
+    Handcycle: "Handcycle",
+    HighIntensityIntervalTraining: "HIIT",
+    Hike: "Hike",
+    IceSkate: "Ice Skate",
+    InlineSkate: "Inline Skate",
+    Kayaking: "Kayaking",
+    Kitesurf: "Kitesurf",
+    MountainBikeRide: "Mountain Bike",
+    NordicSki: "Nordic Ski",
+    Pickleball: "Pickleball",
+    Pilates: "Pilates",
+    Racquetball: "Racquetball",
+    Ride: "Ride",
+    RockClimbing: "Rock Climbing",
+    RollerSki: "Roller Ski",
+    Rowing: "Rowing",
+    Run: "Run",
+    Sail: "Sail",
+    Skateboard: "Skateboard",
+    Snowboard: "Snowboard",
+    Snowshoe: "Snowshoe",
+    Soccer: "Soccer",
+    Squash: "Squash",
+    StairStepper: "Stair Stepper",
+    StandUpPaddling: "Stand Up Paddling",
+    Surfing: "Surfing",
+    Swim: "Swim",
+    TableTennis: "Table Tennis",
+    Tennis: "Tennis",
+    TrailRun: "Trail Run",
+    Velomobile: "Velomobile",
+    VirtualRide: "Virtual Ride",
+    VirtualRow: "Virtual Row",
+    VirtualRun: "Virtual Run",
+    Walk: "Walk",
+    WeightTraining: "Weight Training",
+    Wheelchair: "Wheelchair",
+    Windsurf: "Windsurf",
+    Workout: "Workout",
+    Yoga: "Yoga",
+  };
+  return labels[sportType] || sportType;
+}
+
+export function getSportTypeIcon(sportType: StravaSportType | string): string {
+  const iconMap: Record<string, string> = {
+    Run: "/icons/sneaker-running-regular-full.svg",
+    Walk: "/icons/sneaker-regular-full.svg",
+    Ride: "/icons/bicycle-regular-full.svg",
+    Swim: "/icons/person-swimming-regular-full.svg",
+    Hike: "/icons/person-hiking-regular-full.svg",
+    WeightTraining: "/icons/dumbbell-regular-full.svg",
+    Workout: "/icons/dumbbell-regular-full.svg",
+  };
+  return iconMap[sportType] || "/icons/dumbbell-regular-full.svg";
+}

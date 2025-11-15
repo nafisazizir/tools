@@ -18,4 +18,13 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = database;
 }
 
+// biome-ignore lint/performance/noBarrelFile: false positive
 export * from "./generated/client";
+
+export { StravaClient } from "./strava-client";
+export type * from "./strava-types";
+export {
+  summaryActivityToPrisma,
+  detailedActivityToPrisma,
+  hasDetailedData,
+} from "./strava-transform";
