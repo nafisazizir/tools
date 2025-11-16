@@ -46,6 +46,14 @@ export const GET = async (request: Request) => {
 
     const data = await tokenResponse.json();
 
+    const athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
+      headers: {
+        Authorization: `Bearer ${data.access_token}`,
+      },
+    });
+
+    const athleteData = await athleteResponse.json();
+
     await database.stravaConnection.upsert({
       where: { id: 1 },
       update: {
@@ -53,6 +61,14 @@ export const GET = async (request: Request) => {
         refreshToken: data.refresh_token,
         expiresAt: new Date(data.expires_at * EXPIRATION_MULTIPLIER),
         athleteId: String(data.athlete.id),
+        username: athleteData.username,
+        firstname: athleteData.firstname,
+        lastname: athleteData.lastname,
+        city: athleteData.city,
+        state: athleteData.state,
+        country: athleteData.country,
+        summit: athleteData.summit,
+        profile: athleteData.profile,
       },
       create: {
         id: 1,
@@ -60,6 +76,14 @@ export const GET = async (request: Request) => {
         refreshToken: data.refresh_token,
         expiresAt: new Date(data.expires_at * EXPIRATION_MULTIPLIER),
         athleteId: String(data.athlete.id),
+        username: athleteData.username,
+        firstname: athleteData.firstname,
+        lastname: athleteData.lastname,
+        city: athleteData.city,
+        state: athleteData.state,
+        country: athleteData.country,
+        summit: athleteData.summit,
+        profile: athleteData.profile,
       },
     });
 

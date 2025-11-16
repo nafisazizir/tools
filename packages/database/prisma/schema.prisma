@@ -2,9 +2,9 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
   // previewFeatures = ["driverAdapters"]
-  output          = "../generated/client"
+  output   = "../generated/client"
 }
 
 datasource db {
@@ -26,6 +26,14 @@ model StravaConnection {
   refreshToken String
   expiresAt    DateTime
   athleteId    String
+  username     String?
+  firstname    String?
+  lastname     String?
+  city         String?
+  state        String?
+  country      String?
+  summit       Boolean?
+  profile      String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

@@ -16,14 +16,14 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type GarminConnectionProps = {
+type HevyConnectionProps = {
   isConnected: boolean;
   athleteId?: string;
 };
 
-export const GarminConnection = ({
+export const HevyConnection = ({
   isConnected: initialConnected,
-}: GarminConnectionProps) => {
+}: HevyConnectionProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isConnected, setIsConnected] = useState(initialConnected);
@@ -64,13 +64,13 @@ export const GarminConnection = ({
         <CardTitle className="flex flex-row justify-between">
           <div className="flex items-center gap-2">
             <Image
-              alt="Garmin"
+              alt="Hevy"
               className="rounded-sm"
               height={24}
-              src="/garmin-logo.png"
+              src="/hevy-logo.png"
               width={24}
             />
-            Garmin
+            Hevy
           </div>
           <Badge className={cn("gap-1.5 bg-primary/10 text-primary")}>
             <span className={cn("h-1.5 w-1.5 rounded-full bg-primary")} />
@@ -78,7 +78,7 @@ export const GarminConnection = ({
           </Badge>
         </CardTitle>
         <CardDescription>
-          Connect your Garmin account to export workout data
+          Unfortunately, only pro subscriber can access the API
         </CardDescription>
       </CardHeader>
       <CardContent className="flex h-full items-end justify-end">
@@ -100,7 +100,7 @@ export const GarminConnection = ({
           </Button>
         ) : (
           <Button className="w-full" disabled onClick={handleConnect}>
-            Connect to Garmin
+            Connect to Hevy
           </Button>
         )}
       </CardContent>

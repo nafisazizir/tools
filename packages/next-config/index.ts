@@ -9,6 +9,10 @@ export const config: NextConfig = {
         protocol: "https",
         hostname: "img.clerk.com",
       },
+      {
+        protocol: "https",
+        hostname: "dgalywyr863hv.cloudfront.net",
+      },
     ],
   },
 
