@@ -35,11 +35,12 @@ import {
 } from "@repo/design-system/components/ui/popover";
 import { cn } from "@repo/design-system/lib/utils";
 import { log } from "@repo/observability/log";
-import { ChevronDown, FolderX } from "lucide-react";
+import { ChevronDown, FolderX, Loader2Icon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
+import { env } from "@/env";
 import { getSportTypeIcon, getSportTypeLabel } from "@/lib/strava-sport-types";
 import {
   formatDateTime,
@@ -50,18 +51,22 @@ import {
 
 type ActivitiesListClientProps = {
   activities: StravaActivity[];
+  athleteId: string;
 };
 
 const START_OF_DAY = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
 const END_OF_DAY = { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 };
+const DELAY_DURATION = 1500;
 
 export const ActivitiesListClient = ({
   activities,
+  athleteId,
 }: ActivitiesListClientProps) => {
   const [selectedSportTypes, setSelectedSportTypes] = useState<Set<string>>(
     new Set()
   );
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const availableSportTypes = useMemo(() => {
     const types = new Set(activities.map((a) => a.sport_type));
@@ -170,6 +175,51 @@ export const ActivitiesListClient = ({
         description: "Could not copy to clipboard",
       });
       log.error(`Failed to copy: ${error}`);
+    }
+  };
+
+  const handleSync = async () => {
+    if (!athleteId) {
+      toast.error("Error", {
+        description: "Please connect your Strava account first",
+      });
+      return;
+    }
+
+    setIsSyncing(true);
+
+    try {
+      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/strava/sync`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          athleteId,
+          daysBack: 30,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Sync failed");
+      }
+
+      const data = await response.json();
+
+      toast.success("Sync complete", {
+        description: `Synced ${data.synced} new activities, updated ${data.updated} activities`,
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, DELAY_DURATION);
+    } catch (error) {
+      log.error(`Failed to sync activities: ${error}`);
+      toast.error("Sync failed", {
+        description: "Failed to sync activities. Please try again.",
+      });
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -298,13 +348,29 @@ export const ActivitiesListClient = ({
           </Popover>
         </div>
 
-        <Button
-          className="h-9 w-9 border-none bg-[#D77655] p-0 shadow-none outline-none hover:bg-[#c95c38]"
-          onClick={copyActivitiesToClipboard}
-          variant={"outline"}
-        >
-          <Image alt="Claude" height={28} src="/claude-logo.png" width={28} />
-        </Button>
+        <div className="flex gap-2">
+          <Button disabled={isSyncing} onClick={handleSync}>
+            {isSyncing ? (
+              <>
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCwIcon className="h-4 w-4" />
+                Sync Activities
+              </>
+            )}
+          </Button>
+
+          <Button
+            className="h-9 w-9 border-none bg-[#D77655] p-0 shadow-none outline-none hover:bg-[#c95c38]"
+            onClick={copyActivitiesToClipboard}
+            variant={"outline"}
+          >
+            <Image alt="Claude" height={28} src="/claude-logo.png" width={28} />
+          </Button>
+        </div>
       </div>
 
       {/* Activities List */}

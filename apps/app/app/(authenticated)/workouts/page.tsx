@@ -2,7 +2,6 @@ import { database } from "@repo/database";
 import type { Metadata } from "next";
 import { Header } from "../components/header";
 import { ActivitiesList } from "./components/activities-list";
-import { ActivitiesSync } from "./components/activities-sync";
 import { GarminConnection } from "./components/garmin-connection";
 import { HevyConnection } from "./components/hevy-connection";
 import { StravaConnection } from "./components/strava-connection";
@@ -34,15 +33,7 @@ const App = async () => {
           <HevyConnection athleteId={undefined} isConnected={false} />
         </div>
 
-        {connection && (
-          <>
-            <ActivitiesSync
-              athleteId={connection.athleteId}
-              isConnected={!!connection}
-            />
-            <ActivitiesList athleteId={connection.athleteId} />
-          </>
-        )}
+        {connection && <ActivitiesList athleteId={connection.athleteId} />}
       </div>
     </>
   );

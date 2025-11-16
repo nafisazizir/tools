@@ -11,5 +11,5 @@ export const ActivitiesList = async ({ athleteId }: ActivitiesListProps) => {
     orderBy: { start_date: "desc" },
   });
 
-  return <ActivitiesListClient activities={activities} />;
+  return <ActivitiesListClient activities={activities} athleteId={athleteId} />;
 };
