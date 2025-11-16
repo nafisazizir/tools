@@ -25,7 +25,7 @@ const HTTP_STATUS_BAD_REQUEST = 400;
 const HTTP_STATUS_SERVER_ERROR = 500;
 
 const SPORT_TYPES_REQUIRING_DETAILED_DATA: ReadonlySet<StravaSportType> =
-  new Set<StravaSportType>(["Run", "Ride", "Swim"]);
+  new Set<StravaSportType>(["Run", "Ride", "Swim", "WeightTraining"]);
 
 function calculateAfterTimestamp(daysBack: number): number {
   return Math.floor(
