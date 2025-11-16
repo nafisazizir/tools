@@ -62,6 +62,10 @@ export function summaryActivityToPrisma(
     gear_id: activity.gear_id,
     device_name: activity.device_name,
 
+    has_heartrate: activity.has_heartrate,
+    average_heartrate: activity.average_heartrate,
+    max_heartrate: activity.max_heartrate,
+
     map: activity.map ?? Prisma.JsonNull,
 
     lastSyncedAt: new Date(),
