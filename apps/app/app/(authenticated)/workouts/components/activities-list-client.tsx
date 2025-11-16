@@ -33,9 +33,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/design-system/components/ui/popover";
+import { Separator } from "@repo/design-system/components/ui/separator";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@repo/design-system/components/ui/tabs";
 import { cn } from "@repo/design-system/lib/utils";
 import { log } from "@repo/observability/log";
-import { ChevronDown, FolderX, Loader2Icon, RefreshCwIcon } from "lucide-react";
+import {
+  Braces,
+  ChevronDown,
+  FolderX,
+  LayoutGrid,
+  Loader2Icon,
+  RefreshCwIcon,
+  Table,
+} from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
@@ -240,9 +255,51 @@ export const ActivitiesListClient = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex w-full flex-row justify-between">
-        {/* Filters */}
+    <Tabs defaultValue="grid">
+      <div className="flex w-full justify-between">
+        <TabsList>
+          <TabsTrigger value="grid">
+            <LayoutGrid className="h-4 w-4" />
+            Grid
+          </TabsTrigger>
+          <TabsTrigger disabled value="table">
+            <Table className="h-4 w-4" />
+            Table
+          </TabsTrigger>
+          <TabsTrigger disabled value="json">
+            <Braces className="h-4 w-4" />
+            JSON
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="flex gap-2">
+          <Button disabled={isSyncing} onClick={handleSync}>
+            {isSyncing ? (
+              <>
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCwIcon className="h-4 w-4" />
+                Sync Activities
+              </>
+            )}
+          </Button>
+
+          <Button
+            className="h-9 w-9 border-none bg-[#D77655] p-0 shadow-none outline-none hover:bg-[#c95c38]"
+            onClick={copyActivitiesToClipboard}
+            variant={"outline"}
+          >
+            <Image alt="Claude" height={28} src="/claude-logo.png" width={28} />
+          </Button>
+        </div>
+      </div>
+
+      <Separator className="my-1" />
+
+      <TabsContent className="space-y-4" value="grid">
         <div className="flex flex-wrap items-center gap-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -348,125 +405,115 @@ export const ActivitiesListClient = ({
           </Popover>
         </div>
 
-        <div className="flex gap-2">
-          <Button disabled={isSyncing} onClick={handleSync}>
-            {isSyncing ? (
-              <>
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCwIcon className="h-4 w-4" />
-                Sync Activities
-              </>
-            )}
-          </Button>
-
-          <Button
-            className="h-9 w-9 border-none bg-[#D77655] p-0 shadow-none outline-none hover:bg-[#c95c38]"
-            onClick={copyActivitiesToClipboard}
-            variant={"outline"}
-          >
-            <Image alt="Claude" height={28} src="/claude-logo.png" width={28} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Activities List */}
-      <div className="space-y-3">
-        {filteredActivities.map((activity) => {
-          const date = new Date(activity.start_date_local);
-          const distance = activity.distance
-            ? (activity.distance / METERS_PER_KM).toFixed(2)
-            : null;
-          const duration = activity.moving_time
-            ? formatDuration(activity.moving_time)
-            : null;
-          const pace =
-            activity.moving_time && activity.distance
-              ? formatPace(
-                  activity.moving_time / (activity.distance / METERS_PER_KM)
-                )
+        {/* Activities List */}
+        <div className="space-y-3">
+          {filteredActivities.map((activity) => {
+            const date = new Date(activity.start_date_local);
+            const distance = activity.distance
+              ? (activity.distance / METERS_PER_KM).toFixed(2)
               : null;
+            const duration = activity.moving_time
+              ? formatDuration(activity.moving_time)
+              : null;
+            const pace =
+              activity.moving_time && activity.distance
+                ? formatPace(
+                    activity.moving_time / (activity.distance / METERS_PER_KM)
+                  )
+                : null;
 
-          const iconSrc = activity.sport_type
-            ? getSportTypeIcon(activity.sport_type)
-            : "/icons/dumbbell-regular-full.svg";
+            const iconSrc = activity.sport_type
+              ? getSportTypeIcon(activity.sport_type)
+              : "/icons/dumbbell-regular-full.svg";
 
-          return (
-            <Card className="shadow-none" key={activity.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Image
-                    alt={activity.sport_type || "sport_type"}
-                    className="h-6 w-6"
-                    height={24}
-                    src={iconSrc}
-                    width={24}
-                  />
-                  <h4 className="font-semibold text-xl leading-none">
-                    {activity.name}
-                  </h4>
-                </CardTitle>
-                <CardDescription>
-                  <div className="flex flex-row gap-1">
-                    <span className="text-muted-foreground text-sm">
-                      {formatDateTime(date)}
-                    </span>
-                    {activity.device_name && (
+            return (
+              <Card className="shadow-none" key={activity.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <Image
+                      alt={activity.sport_type || "sport_type"}
+                      className="h-6 w-6"
+                      height={24}
+                      src={iconSrc}
+                      width={24}
+                    />
+                    <h4 className="font-semibold text-xl leading-none">
+                      {activity.name}
+                    </h4>
+                  </CardTitle>
+                  <CardDescription>
+                    <div className="flex flex-row gap-1">
                       <span className="text-muted-foreground text-sm">
-                        {activity.device_name}
+                        {formatDateTime(date)}
                       </span>
+                      {activity.device_name && (
+                        <span className="text-muted-foreground text-sm">
+                          {activity.device_name}
+                        </span>
+                      )}
+                    </div>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-4">
+                    {distance && (
+                      <div className="flex flex-col items-start">
+                        <span className="text-muted-foreground text-xs">
+                          Distance
+                        </span>
+                        <span className="font-medium text-xl">
+                          {distance} km
+                        </span>
+                      </div>
+                    )}
+
+                    {pace && (
+                      <div className="flex flex-col items-start">
+                        <span className="text-muted-foreground text-xs">
+                          Pace
+                        </span>
+                        <span className="font-medium text-xl">{pace}</span>
+                      </div>
+                    )}
+
+                    {duration && (
+                      <div className="flex flex-col items-start">
+                        <span className="text-muted-foreground text-xs">
+                          Time
+                        </span>
+                        <span className="font-medium text-xl">{duration}</span>
+                      </div>
+                    )}
+
+                    {activity.has_heartrate && activity.average_heartrate && (
+                      <div className="flex flex-col items-start">
+                        <span className="text-muted-foreground text-xs">
+                          Avg HR
+                        </span>
+                        <span className="font-medium text-xl">
+                          {activity.average_heartrate.toFixed(0)} bpm
+                        </span>
+                      </div>
                     )}
                   </div>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-4">
-                  {distance && (
-                    <div className="flex flex-col items-start">
-                      <span className="text-muted-foreground text-xs">
-                        Distance
-                      </span>
-                      <span className="font-medium text-xl">{distance} km</span>
-                    </div>
-                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </TabsContent>
 
-                  {pace && (
-                    <div className="flex flex-col items-start">
-                      <span className="text-muted-foreground text-xs">
-                        Pace
-                      </span>
-                      <span className="font-medium text-xl">{pace}</span>
-                    </div>
-                  )}
+      <TabsContent value="table">
+        <div className="text-center text-muted-foreground">
+          Table view coming soon
+        </div>
+      </TabsContent>
 
-                  {duration && (
-                    <div className="flex flex-col items-start">
-                      <span className="text-muted-foreground text-xs">
-                        Time
-                      </span>
-                      <span className="font-medium text-xl">{duration}</span>
-                    </div>
-                  )}
-
-                  {activity.has_heartrate && activity.average_heartrate && (
-                    <div className="flex flex-col items-start">
-                      <span className="text-muted-foreground text-xs">
-                        Avg HR
-                      </span>
-                      <span className="font-medium text-xl">
-                        {activity.average_heartrate.toFixed(0)} bpm
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+      <TabsContent value="json">
+        <div className="text-center text-muted-foreground">
+          JSON view coming soon
+        </div>
+      </TabsContent>
+    </Tabs>
   );
 };
