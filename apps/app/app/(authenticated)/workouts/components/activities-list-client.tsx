@@ -256,7 +256,7 @@ export const ActivitiesListClient = ({
 
   return (
     <Tabs defaultValue="grid">
-      <div className="flex w-full justify-between">
+      <div className="flex w-full flex-wrap-reverse justify-between gap-y-2 space-x-4">
         <TabsList>
           <TabsTrigger value="grid">
             <LayoutGrid className="h-4 w-4" />

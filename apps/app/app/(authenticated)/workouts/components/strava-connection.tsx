@@ -166,7 +166,7 @@ export const StravaConnection = ({
   };
 
   return (
-    <Card className="w-full shadow-none">
+    <Card className="w-full min-w-[270px] shadow-none">
       <CardHeader>
         <CardTitle className="flex flex-row justify-between">
           <div className="flex items-center gap-2">
