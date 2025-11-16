@@ -199,7 +199,6 @@ export const ActivitiesListClient = ({
         },
         body: JSON.stringify({
           athleteId,
-          daysBack: 30,
         }),
       });
 
@@ -209,8 +208,19 @@ export const ActivitiesListClient = ({
 
       const data = await response.json();
 
+      const parts: string[] = [];
+      if (data.created > 0) {
+        parts.push(`${data.created} new`);
+      }
+      if (data.updated > 0) {
+        parts.push(`${data.updated} updated`);
+      }
+      if (data.deleted > 0) {
+        parts.push(`${data.deleted} deleted`);
+      }
+
       toast.success("Sync complete", {
-        description: `Synced ${data.synced} new activities, updated ${data.updated} activities`,
+        description: parts.length > 0 ? parts.join(", ") : "No changes",
       });
 
       setTimeout(() => {

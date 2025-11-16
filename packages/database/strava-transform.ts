@@ -121,6 +121,21 @@ export function detailedActivityToPrisma(
   };
 }
 
+export function editableFieldsFromSummary(
+  activity: StravaSummaryActivity
+): Prisma.StravaActivityUpdateInput {
+  return {
+    name: activity.name,
+    trainer: activity.trainer,
+    commute: activity.commute,
+    private: activity.private,
+    gear_id: activity.gear_id,
+    photo_count: activity.photo_count,
+    total_photo_count: activity.total_photo_count,
+    lastSyncedAt: new Date(),
+  };
+}
+
 export function hasDetailedData(activity: {
   description?: string | null;
   calories?: number | null;

@@ -22,9 +22,10 @@ if (process.env.NODE_ENV !== "production") {
 export * from "./generated/client";
 
 export { StravaClient } from "./strava-client";
-export type * from "./strava-types";
 export {
-  summaryActivityToPrisma,
   detailedActivityToPrisma,
+  editableFieldsFromSummary,
   hasDetailedData,
+  summaryActivityToPrisma,
 } from "./strava-transform";
+export type * from "./strava-types";
