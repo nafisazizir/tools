@@ -10,7 +10,7 @@
     "@t3-oss/env-nextjs": "^0.13.8",
     "@liveblocks/client": "^3.9.1",
     "@liveblocks/node": "^3.9.1",
-    "@liveblocks/react": "^3.9.1",
+    "@liveblocks/react": "^3.10.1",
     "react": "19.2.0",
     "server-only": "^0.0.1",
     "zod": "^4.1.12"
