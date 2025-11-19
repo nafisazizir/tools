@@ -1,4 +1,3 @@
-import { database } from "@repo/database";
 import { redirect } from "next/navigation";
 import { Header } from "../components/header";
 
@@ -26,13 +25,8 @@ const SearchPage = async ({ searchParams }: SearchPageProperties) => {
     redirect("/");
   }
 
-  const pages = await database.page.findMany({
-    where: {
-      name: {
-        contains: q,
-      },
-    },
-  });
+  // TODO: Implement search via API
+  const pages: Array<{ id: number; name: string }> = [];
 
   return (
     <>

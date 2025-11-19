@@ -145,13 +145,16 @@ export const StravaConnection = ({
   }, [searchParams, router]);
 
   const handleConnect = () => {
-    window.location.href = "/api/strava/connect";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+    const redirectUrl = encodeURIComponent(window.location.pathname);
+    window.location.href = `${apiUrl}/strava/connect?redirectUrl=${redirectUrl}`;
   };
 
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     try {
-      const response = await fetch("/api/strava/disconnect", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+      const response = await fetch(`${apiUrl}/strava/disconnect`, {
         method: "POST",
       });
       if (response.ok) {

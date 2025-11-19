@@ -1,4 +1,4 @@
-import { database } from "@repo/database";
+import { apiClient } from "@/lib/api-client";
 import { ActivitiesListClient } from "./activities-list-client";
 
 type ActivitiesListProps = {
@@ -6,10 +6,7 @@ type ActivitiesListProps = {
 };
 
 export const ActivitiesList = async ({ athleteId }: ActivitiesListProps) => {
-  const activities = await database.stravaActivity.findMany({
-    where: { athlete_id: athleteId },
-    orderBy: { start_date: "desc" },
-  });
+  const data = await apiClient.getStravaActivities({ athleteId });
 
-  return <ActivitiesListClient activities={activities} athleteId={athleteId} />;
+  return <ActivitiesListClient activities={data.activities} athleteId={athleteId} />;
 };

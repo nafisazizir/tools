@@ -1,4 +1,3 @@
-import { database } from "@repo/database";
 import {
   Empty,
   EmptyDescription,
@@ -12,6 +11,7 @@ import {
 } from "@repo/design-system/components/ui/scroll-area";
 import { Workflow } from "lucide-react";
 import type { Metadata } from "next";
+import { apiClient } from "@/lib/api-client";
 import { Header } from "../components/header";
 import { ActivitiesList } from "./components/activities-list";
 import { GarminConnection } from "./components/garmin-connection";
@@ -27,9 +27,17 @@ export const metadata: Metadata = {
 };
 
 const App = async () => {
-  const connection = await database.stravaConnection.findUnique({
-    where: { id: 1 },
-  });
+  const connectionData = await apiClient.getStravaConnection();
+  const connection = connectionData.connected ? {
+    athleteId: connectionData.athleteId,
+    firstname: connectionData.firstname ?? null,
+    lastname: connectionData.lastname ?? null,
+    profile: connectionData.profile ?? null,
+    city: connectionData.city ?? null,
+    state: connectionData.state ?? null,
+    country: connectionData.country ?? null,
+    summit: connectionData.summit ?? null,
+  } : null;
 
   return (
     <>
@@ -40,7 +48,7 @@ const App = async () => {
             <StravaConnection
               athleteData={connection ? connection : undefined}
               athleteId={connection?.athleteId}
-              isConnected={!!connection}
+              isConnected={connectionData.connected}
             />
             <GarminConnection athleteId={undefined} isConnected={false} />
             <HevyConnection athleteId={undefined} isConnected={false} />
@@ -48,7 +56,7 @@ const App = async () => {
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
-        {connection ? (
+        {connectionData.connected && connection?.athleteId ? (
           <ActivitiesList athleteId={connection.athleteId} />
         ) : (
           <Empty>

@@ -6,6 +6,7 @@ import { keys as core } from "@repo/next-config/keys";
 import { keys as observability } from "@repo/observability/keys";
 import { keys as payments } from "@repo/payments/keys";
 import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const env = createEnv({
   extends: [
@@ -17,7 +18,15 @@ export const env = createEnv({
     observability(),
     payments(),
   ],
-  server: {},
+  server: {
+    STRAVA_CLIENT_ID: z.string().min(1),
+    STRAVA_CLIENT_SECRET: z.string().min(1),
+    STRAVA_REDIRECT_URI: z.string().url(),
+  },
   client: {},
-  runtimeEnv: {},
+  runtimeEnv: {
+    STRAVA_CLIENT_ID: process.env.STRAVA_CLIENT_ID,
+    STRAVA_CLIENT_SECRET: process.env.STRAVA_CLIENT_SECRET,
+    STRAVA_REDIRECT_URI: process.env.STRAVA_REDIRECT_URI,
+  },
 });

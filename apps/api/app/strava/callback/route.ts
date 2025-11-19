@@ -1,4 +1,3 @@
-import { auth } from "@repo/auth/server";
 import { database } from "@repo/database";
 import { log } from "@repo/observability/log";
 import { NextResponse } from "next/server";
@@ -6,24 +5,21 @@ import { env } from "@/env";
 
 export const GET = async (request: Request) => {
   const EXPIRATION_MULTIPLIER = 1000;
-  const { userId } = await auth();
-
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
 
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const state = searchParams.get("state");
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/workouts?error=${error}`, request.url)
-    );
+    return NextResponse.json({ error }, { status: 400 });
   }
 
   if (!code) {
-    return new Response("No authorization code provided", { status: 400 });
+    return NextResponse.json(
+      { error: "No authorization code provided" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -87,13 +83,19 @@ export const GET = async (request: Request) => {
       },
     });
 
-    return NextResponse.redirect(
-      new URL("/workouts?connected=true", request.url)
-    );
+    // Redirect back to frontend app
+    const frontendPath = state || "/workouts";
+    const redirectUrl = new URL(frontendPath, env.NEXT_PUBLIC_APP_URL);
+    redirectUrl.searchParams.set("connected", "true");
+
+    return NextResponse.redirect(redirectUrl.toString());
   } catch (anotherError) {
     log.error(`Strava OAuth error: ${anotherError}`);
-    return NextResponse.redirect(
-      new URL("/workouts?error=oauth_failed", request.url)
-    );
+
+    // Redirect to frontend with error
+    const errorUrl = new URL("/workouts", env.NEXT_PUBLIC_APP_URL);
+    errorUrl.searchParams.set("error", "oauth_failed");
+
+    return NextResponse.redirect(errorUrl.toString());
   }
 };

@@ -1,7 +1,6 @@
 import { keys as analytics } from "@repo/analytics/keys";
 import { keys as auth } from "@repo/auth/keys";
 import { keys as collaboration } from "@repo/collaboration/keys";
-import { keys as database } from "@repo/database/keys";
 import { keys as email } from "@repo/email/keys";
 import { keys as flags } from "@repo/feature-flags/keys";
 import { keys as core } from "@repo/next-config/keys";
@@ -18,7 +17,6 @@ export const env = createEnv({
     analytics(),
     collaboration(),
     core(),
-    database(),
     email(),
     flags(),
     notifications(),
@@ -31,10 +29,13 @@ export const env = createEnv({
     STRAVA_CLIENT_SECRET: z.string().min(1),
     STRAVA_REDIRECT_URI: z.string().url(),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_API_URL: z.string().url().optional(),
+  },
   runtimeEnv: {
     STRAVA_CLIENT_ID: process.env.STRAVA_CLIENT_ID,
     STRAVA_CLIENT_SECRET: process.env.STRAVA_CLIENT_SECRET,
     STRAVA_REDIRECT_URI: process.env.STRAVA_REDIRECT_URI,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 });
