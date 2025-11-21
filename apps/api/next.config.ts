@@ -1,18 +1,9 @@
-import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 import { config, withAnalyzer } from "@repo/next-config";
 import { withLogging, withSentry } from "@repo/observability/next-config";
 import type { NextConfig } from "next";
 import { env } from "@/env";
 
-let nextConfig: NextConfig = {
-  ...withLogging(config),
-  webpack: (webpackConfig, { isServer }) => {
-    if (isServer) {
-      webpackConfig.plugins = [...webpackConfig.plugins, new PrismaPlugin()];
-    }
-    return webpackConfig;
-  },
-};
+let nextConfig: NextConfig = withLogging(config);
 
 if (env.VERCEL) {
   nextConfig = withSentry(nextConfig);
