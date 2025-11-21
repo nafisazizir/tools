@@ -12,7 +12,8 @@
       "WebSearch",
       "Bash(npx prisma:*)",
       "Bash(curl:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(npx biome:*)"
     ],
     "deny": [],
     "ask": []
