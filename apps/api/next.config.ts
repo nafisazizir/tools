@@ -6,6 +6,9 @@ import { env } from "@/env";
 
 let nextConfig: NextConfig = {
   ...withLogging(config),
+  outputFileTracingIncludes: {
+    "/*": ["../../packages/database/generated/client/**/*"],
+  },
   webpack: (webpackConfig, { isServer }) => {
     if (isServer) {
       webpackConfig.plugins = [...webpackConfig.plugins, new PrismaPlugin()];
