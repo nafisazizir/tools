@@ -6,16 +6,6 @@ import { env } from "@/env";
 
 let nextConfig: NextConfig = {
   ...withLogging(config),
-  outputFileTracingIncludes: {
-    // Ensure Prisma engines and wasm are bundled into server output
-    "/*": [
-      "../../packages/database/generated/client/libquery_engine*",
-      "../../packages/database/generated/client/query_engine*",
-      "../../packages/database/generated/client/schema.prisma",
-      "../../packages/database/generated/client/*.node",
-      "../../packages/database/generated/client/*.wasm",
-    ],
-  },
   webpack: (webpackConfig, { isServer }) => {
     if (isServer) {
       webpackConfig.plugins = [...webpackConfig.plugins, new PrismaPlugin()];
