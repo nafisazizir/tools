@@ -11,6 +11,7 @@ let nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": ["../../packages/database/generated/client/**/*"],
   },
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-neon"],
   webpack: (webpackConfig, { isServer }) => {
     if (isServer) {
       webpackConfig.plugins = [...webpackConfig.plugins, new PrismaPlugin()];
