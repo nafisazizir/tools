@@ -1,3 +1,4 @@
+import path from "node:path";
 import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 import { withToolbar } from "@repo/feature-flags/lib/toolbar";
 import { config, withAnalyzer } from "@repo/next-config";
@@ -7,6 +8,7 @@ import { env } from "@/env";
 
 let nextConfig: NextConfig = {
   ...withToolbar(withLogging(config)),
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   outputFileTracingIncludes: {
     "/*": ["../../packages/database/generated/client/**/*"],
   },
