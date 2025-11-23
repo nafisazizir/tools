@@ -6,11 +6,25 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const searches = [
-      "find /var/task -name 'libquery_engine*.node' 2>/dev/null",
-      "ls -la /var/task/apps/api/app/strava/connection/ 2>/dev/null || echo 'not found'",
-      "ls -la /var/task/packages/database/generated/ 2>/dev/null || echo 'not found'",
-      "ls -la /var/task/packages/database/ 2>/dev/null || echo 'not found'",
-      "find /var/task/packages/database -name '*.node' 2>/dev/null || echo 'not found'",
+      // Check what's in the generated client directory
+      "ls -laR /var/task/packages/database/generated/client/ | head -100",
+
+      // Look for ALL .node files anywhere
+      "find /var/task -name '*.node' -type f 2>/dev/null | head -50",
+
+      // Check if files are in .next build output
+      "ls -la /var/task/apps/api/.next/server/ 2>/dev/null | head -20",
+      "find /var/task/apps/api/.next -name '*query_engine*' 2>/dev/null | head -20",
+
+      // Check node_modules
+      "ls -la /var/task/node_modules/.prisma/ 2>/dev/null || echo 'not found'",
+      "find /var/task/node_modules -name 'libquery_engine*.node' 2>/dev/null | head -10",
+
+      // Check what the PrismaPlugin might have done
+      "find /var/task -type f -name 'schema.prisma' 2>/dev/null",
+
+      // Size check
+      "du -sh /var/task/packages/database/generated/client/ 2>/dev/null || echo 'not found'",
     ];
 
     const results: Record<string, string> = {};
