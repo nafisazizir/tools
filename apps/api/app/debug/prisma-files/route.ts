@@ -6,11 +6,11 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const searches = [
-      "find /var/task -name 'libquery_engine*.node' 2>/dev/null | head -20",
-      "find /var/task -type d -name 'client' 2>/dev/null | head -20",
-      "ls -la /var/task/node_modules/@repo/ 2>/dev/null || echo 'not found'",
-      "ls -la /var/task/packages/ 2>/dev/null || echo 'not found'",
-      "ls -R /var/task | grep -E 'libquery|prisma' | head -50",
+      "find /var/task -name 'libquery_engine*.node' 2>/dev/null",
+      "ls -la /var/task/apps/api/app/strava/connection/ 2>/dev/null || echo 'not found'",
+      "ls -la /var/task/packages/database/generated/ 2>/dev/null || echo 'not found'",
+      "ls -la /var/task/packages/database/ 2>/dev/null || echo 'not found'",
+      "find /var/task/packages/database -name '*.node' 2>/dev/null || echo 'not found'",
     ];
 
     const results: Record<string, string> = {};
