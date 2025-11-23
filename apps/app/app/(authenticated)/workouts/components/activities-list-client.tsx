@@ -237,7 +237,7 @@ export const ActivitiesListClient = ({
     }
   };
 
-  if (activities.length !== 0) {
+  if (activities.length === 0) {
     return (
       <Empty>
         <EmptyHeader>
