@@ -15,6 +15,7 @@ import {
 } from "@repo/design-system/components/ui/command";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -236,7 +237,7 @@ export const ActivitiesListClient = ({
     }
   };
 
-  if (activities.length === 0) {
+  if (activities.length !== 0) {
     return (
       <Empty>
         <EmptyHeader>
@@ -248,6 +249,21 @@ export const ActivitiesListClient = ({
             No activities synced yet. Your latest workouts will appear here
           </EmptyDescription>
         </EmptyHeader>
+        <EmptyContent>
+          <Button disabled={isSyncing} onClick={handleSync}>
+            {isSyncing ? (
+              <>
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCwIcon className="h-4 w-4" />
+                Sync Activities
+              </>
+            )}
+          </Button>
+        </EmptyContent>
       </Empty>
     );
   }
