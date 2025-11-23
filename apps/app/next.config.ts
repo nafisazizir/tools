@@ -9,9 +9,6 @@ import { env } from "@/env";
 let nextConfig: NextConfig = {
   ...withToolbar(withLogging(config)),
   outputFileTracingRoot: path.join(__dirname, "../../"),
-  outputFileTracingIncludes: {
-    "/*": ["../../packages/database/generated/client/**/*"],
-  },
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-neon"],
   webpack: (webpackConfig, { isServer }) => {
     if (isServer) {

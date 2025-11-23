@@ -4,7 +4,7 @@
 generator client {
   provider      = "prisma-client-js"
   // previewFeatures = ["driverAdapters"]
-  output        = "../generated/client"
+  output        = "../node_modules/.prisma/client"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
   // engineType    = "client"
 }
