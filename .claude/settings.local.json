@@ -13,7 +13,8 @@
       "Bash(npx prisma:*)",
       "Bash(curl:*)",
       "Bash(lsof:*)",
-      "Bash(npx biome:*)"
+      "Bash(npx biome:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []
