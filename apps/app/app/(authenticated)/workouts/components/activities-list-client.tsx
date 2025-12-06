@@ -1,6 +1,5 @@
 "use client";
 
-import type { StravaActivity } from "@repo/database";
 import { Button } from "@repo/design-system/components/ui/button";
 import { Calendar } from "@repo/design-system/components/ui/calendar";
 import { Checkbox } from "@repo/design-system/components/ui/checkbox";
@@ -49,28 +48,32 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
-import { env } from "@/env";
+import {
+  useActivitiesQuery,
+  useSyncActivitiesMutation,
+} from "@/hooks/use-activities-query";
 import { getSportTypeLabel } from "@/lib/strava-sport-types";
 import { ActivityCard } from "./activity-card";
 
 type ActivitiesListClientProps = {
-  activities: StravaActivity[];
   athleteId: string;
 };
 
 const START_OF_DAY = { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 };
 const END_OF_DAY = { hours: 23, minutes: 59, seconds: 59, milliseconds: 999 };
-const DELAY_DURATION = 1500;
 
 export const ActivitiesListClient = ({
-  activities,
   athleteId,
 }: ActivitiesListClientProps) => {
+  const { data } = useActivitiesQuery(athleteId);
+  const syncMutation = useSyncActivitiesMutation();
+
   const [selectedSportTypes, setSelectedSportTypes] = useState<Set<string>>(
     new Set()
   );
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [isSyncing, setIsSyncing] = useState(false);
+
+  const activities = data?.activities ?? [];
 
   const availableSportTypes = useMemo(() => {
     const types = new Set(activities.map((a) => a.sport_type));
@@ -182,7 +185,7 @@ export const ActivitiesListClient = ({
     }
   };
 
-  const handleSync = async () => {
+  const handleSync = () => {
     if (!athleteId) {
       toast.error("Error", {
         description: "Please connect your Strava account first",
@@ -190,51 +193,33 @@ export const ActivitiesListClient = ({
       return;
     }
 
-    setIsSyncing(true);
+    syncMutation.mutate(
+      { athleteId },
+      {
+        onSuccess: (result) => {
+          const parts: string[] = [];
+          if (result.created > 0) {
+            parts.push(`${result.created} new`);
+          }
+          if (result.updated > 0) {
+            parts.push(`${result.updated} updated`);
+          }
+          if (result.deleted > 0) {
+            parts.push(`${result.deleted} deleted`);
+          }
 
-    try {
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/strava/sync`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+          toast.success("Sync complete", {
+            description: parts.length > 0 ? parts.join(", ") : "No changes",
+          });
         },
-        body: JSON.stringify({
-          athleteId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Sync failed");
+        onError: (error) => {
+          log.error(`Failed to sync activities: ${error}`);
+          toast.error("Sync failed", {
+            description: "Failed to sync activities. Please try again.",
+          });
+        },
       }
-
-      const data = await response.json();
-
-      const parts: string[] = [];
-      if (data.created > 0) {
-        parts.push(`${data.created} new`);
-      }
-      if (data.updated > 0) {
-        parts.push(`${data.updated} updated`);
-      }
-      if (data.deleted > 0) {
-        parts.push(`${data.deleted} deleted`);
-      }
-
-      toast.success("Sync complete", {
-        description: parts.length > 0 ? parts.join(", ") : "No changes",
-      });
-
-      setTimeout(() => {
-        window.location.reload();
-      }, DELAY_DURATION);
-    } catch (error) {
-      log.error(`Failed to sync activities: ${error}`);
-      toast.error("Sync failed", {
-        description: "Failed to sync activities. Please try again.",
-      });
-    } finally {
-      setIsSyncing(false);
-    }
+    );
   };
 
   if (activities.length === 0) {
@@ -250,8 +235,8 @@ export const ActivitiesListClient = ({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button disabled={isSyncing} onClick={handleSync}>
-            {isSyncing ? (
+          <Button disabled={syncMutation.isPending} onClick={handleSync}>
+            {syncMutation.isPending ? (
               <>
                 <Loader2Icon className="h-4 w-4 animate-spin" />
                 Syncing...
@@ -287,8 +272,8 @@ export const ActivitiesListClient = ({
         </TabsList>
 
         <div className="flex gap-2">
-          <Button disabled={isSyncing} onClick={handleSync}>
-            {isSyncing ? (
+          <Button disabled={syncMutation.isPending} onClick={handleSync}>
+            {syncMutation.isPending ? (
               <>
                 <Loader2Icon className="h-4 w-4 animate-spin" />
                 Syncing...
