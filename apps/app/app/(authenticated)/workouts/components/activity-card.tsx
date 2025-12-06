@@ -7,9 +7,8 @@ import {
   CardTitle,
 } from "@repo/design-system/components/ui/card";
 import { cn } from "@repo/design-system/lib/utils";
-import Image from "next/image";
 import { useState } from "react";
-import { getSportTypeIcon } from "@/lib/strava-sport-types";
+import { SportTypeIcon } from "@/components/sport-type-icon";
 import {
   formatDateTime,
   formatDuration,
@@ -35,20 +34,13 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
       ? formatPace(activity.moving_time / (activity.distance / METERS_PER_KM))
       : null;
 
-  const iconSrc = activity.sport_type
-    ? getSportTypeIcon(activity.sport_type)
-    : "/icons/dumbbell-regular-full.svg";
-
   return (
     <Card className="gap-4 shadow-none" key={activity.id}>
       <CardHeader>
         <CardTitle className="flex items-center gap-3">
-          <Image
-            alt={activity.sport_type || "sport_type"}
-            className="h-6 w-6"
-            height={24}
-            src={iconSrc}
-            width={24}
+          <SportTypeIcon
+            className="h-6 w-6 text-primary"
+            sportType={activity.sport_type || "Default"}
           />
           <h4 className="font-semibold text-xl leading-none">
             {activity.name}
