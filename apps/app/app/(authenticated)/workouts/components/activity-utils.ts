@@ -26,22 +26,11 @@ export function formatPace(secondsPerKm: number): string {
 }
 
 export function formatDateTime(date: Date): string {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / MS_PER_DAY);
-
   const timeString = date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
-
-  if (diffDays === 0) {
-    return `Today at ${timeString}`;
-  }
-  if (diffDays === 1) {
-    return `Yesterday at ${timeString}`;
-  }
   return `${date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
