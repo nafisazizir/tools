@@ -235,7 +235,11 @@ export const ActivitiesListClient = ({
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button disabled={syncMutation.isPending} onClick={handleSync}>
+          <Button
+            disabled={syncMutation.isPending}
+            onClick={handleSync}
+            variant={"outline"}
+          >
             {syncMutation.isPending ? (
               <>
                 <Loader2Icon className="h-4 w-4 animate-spin" />
@@ -272,7 +276,11 @@ export const ActivitiesListClient = ({
         </TabsList>
 
         <div className="flex gap-2">
-          <Button disabled={syncMutation.isPending} onClick={handleSync}>
+          <Button
+            disabled={syncMutation.isPending}
+            onClick={handleSync}
+            variant={"outline"}
+          >
             {syncMutation.isPending ? (
               <>
                 <Loader2Icon className="h-4 w-4 animate-spin" />
@@ -287,7 +295,7 @@ export const ActivitiesListClient = ({
           </Button>
 
           <Button
-            className="h-9 w-9 p-0 shadow-none"
+            className="h-9 w-9 p-0"
             onClick={copyActivitiesToClipboard}
             variant={"outline"}
           >
@@ -304,7 +312,6 @@ export const ActivitiesListClient = ({
             <PopoverTrigger asChild>
               <Button
                 className={cn(
-                  "rounded-full",
                   selectedSportTypes.size > 0
                     ? "bg-accent"
                     : "font-normal text-muted-foreground hover:text-muted-foreground"
@@ -367,7 +374,6 @@ export const ActivitiesListClient = ({
             <PopoverTrigger asChild>
               <Button
                 className={cn(
-                  "rounded-full",
                   dateRange?.from
                     ? "bg-accent"
                     : "font-normal text-muted-foreground hover:text-muted-foreground"

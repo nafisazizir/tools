@@ -74,7 +74,12 @@ export const HevyConnection = ({
             )}
           </Button>
         ) : (
-          <Button className="w-full" disabled onClick={handleConnect}>
+          <Button
+            className="w-full"
+            disabled
+            onClick={handleConnect}
+            variant={"outline"}
+          >
             Connect to Hevy
           </Button>
         )}

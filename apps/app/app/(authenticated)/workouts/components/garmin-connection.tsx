@@ -74,7 +74,12 @@ export const GarminConnection = ({
             )}
           </Button>
         ) : (
-          <Button className="w-full" disabled onClick={handleConnect}>
+          <Button
+            className="w-full"
+            disabled
+            onClick={handleConnect}
+            variant={"outline"}
+          >
             Connect to Garmin
           </Button>
         )}
