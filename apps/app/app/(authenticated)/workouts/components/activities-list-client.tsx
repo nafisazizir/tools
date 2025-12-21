@@ -287,7 +287,7 @@ export const ActivitiesListClient = ({
           </Button>
 
           <Button
-            className="h-9 w-9 border-none bg-[#D77655] p-0 shadow-none outline-none hover:bg-[#c95c38]"
+            className="h-9 w-9 p-0 shadow-none"
             onClick={copyActivitiesToClipboard}
             variant={"outline"}
           >
