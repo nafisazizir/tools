@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@repo/design-system/components/ui/badge";
 import { Button } from "@repo/design-system/components/ui/button";
 import { Calendar } from "@repo/design-system/components/ui/calendar";
 import { Checkbox } from "@repo/design-system/components/ui/checkbox";
@@ -26,23 +27,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/design-system/components/ui/popover";
-import { Separator } from "@repo/design-system/components/ui/separator";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@repo/design-system/components/ui/tabs";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@repo/design-system/components/ui/tooltip";
 import { cn } from "@repo/design-system/lib/utils";
 import { log } from "@repo/observability/log";
 import {
-  Braces,
+  CalendarDays,
   ChevronDown,
+  Filter,
   FolderX,
-  LayoutGrid,
-  Loader2Icon,
-  RefreshCwIcon,
-  Table,
+  Loader2,
+  RefreshCw,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
@@ -54,6 +53,7 @@ import {
 } from "@/hooks/use-activities-query";
 import { getSportTypeLabel } from "@/lib/strava-sport-types";
 import { ActivityCard } from "./activity-card";
+import { StatsOverview } from "./stats-overview";
 
 type ActivitiesListClientProps = {
   athleteId: string;
@@ -118,6 +118,8 @@ export const ActivitiesListClient = ({
     return filtered;
   }, [activities, selectedSportTypes, dateRange]);
 
+  const hasActiveFilters = selectedSportTypes.size > 0 || dateRange?.from;
+
   const toggleSportType = (sportType: string) => {
     const newSet = new Set(selectedSportTypes);
     if (newSet.has(sportType)) {
@@ -128,8 +130,9 @@ export const ActivitiesListClient = ({
     setSelectedSportTypes(newSet);
   };
 
-  const clearFilters = () => {
+  const clearAllFilters = () => {
     setSelectedSportTypes(new Set());
+    setDateRange(undefined);
   };
 
   const formatDateRangeDisplay = (range: DateRange | undefined): string => {
@@ -231,23 +234,23 @@ export const ActivitiesListClient = ({
           </EmptyMedia>
           <EmptyTitle>No Activities Yet</EmptyTitle>
           <EmptyDescription>
-            No activities synced yet. Your latest workouts will appear here
+            Sync your activities from connected sources to see them here
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
           <Button
             disabled={syncMutation.isPending}
             onClick={handleSync}
-            variant={"outline"}
+            variant="outline"
           >
             {syncMutation.isPending ? (
               <>
-                <Loader2Icon className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 Syncing...
               </>
             ) : (
               <>
-                <RefreshCwIcon className="h-4 w-4" />
+                <RefreshCw className="size-4" />
                 Sync Activities
               </>
             )}
@@ -258,177 +261,179 @@ export const ActivitiesListClient = ({
   }
 
   return (
-    <Tabs defaultValue="grid">
-      <div className="flex w-full flex-wrap-reverse justify-between gap-y-2 space-x-4">
-        <TabsList>
-          <TabsTrigger value="grid">
-            <LayoutGrid className="h-4 w-4" />
-            Grid
-          </TabsTrigger>
-          <TabsTrigger disabled value="table">
-            <Table className="h-4 w-4" />
-            Table
-          </TabsTrigger>
-          <TabsTrigger disabled value="json">
-            <Braces className="h-4 w-4" />
-            JSON
-          </TabsTrigger>
-        </TabsList>
+    <div className="space-y-6">
+      <StatsOverview activities={filteredActivities} />
 
-        <div className="flex gap-2">
-          <Button
-            disabled={syncMutation.isPending}
-            onClick={handleSync}
-            variant={"outline"}
-          >
-            {syncMutation.isPending ? (
-              <>
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCwIcon className="h-4 w-4" />
-                Sync Activities
-              </>
-            )}
-          </Button>
-
-          <Button
-            className="h-9 w-9 p-0"
-            onClick={copyActivitiesToClipboard}
-            variant={"outline"}
-          >
-            <Image alt="Claude" height={28} src="/claude-logo.png" width={28} />
-          </Button>
-        </div>
-      </div>
-
-      <Separator className="my-1" />
-
-      <TabsContent className="space-y-4" value="grid">
-        <div className="flex flex-wrap items-center gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                className={cn(
-                  selectedSportTypes.size > 0
-                    ? "bg-accent"
-                    : "font-normal text-muted-foreground hover:text-muted-foreground"
-                )}
-                size={"sm"}
-                variant="ghost"
-              >
-                Sport Type
-                {selectedSportTypes.size > 0 && (
-                  <>
-                    :
-                    <span className="inline-block max-w-[100px] truncate font-normal">
-                      {Array.from(selectedSportTypes).join(", ")}
-                    </span>
-                  </>
-                )}
-                <ChevronDown />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="Search sport types..." />
-                <CommandList>
-                  <CommandEmpty>No sport types found.</CommandEmpty>
-                  <CommandGroup>
-                    {availableSportTypes.map((sportType) => {
-                      const isSelected = selectedSportTypes.has(sportType);
-                      return (
-                        <CommandItem
-                          key={sportType}
-                          onSelect={() => toggleSportType(sportType)}
-                        >
-                          <div className="flex w-full items-center space-x-2">
-                            <Checkbox
-                              checked={isSelected}
-                              onCheckedChange={() => toggleSportType(sportType)}
-                            />
-                            <Label>{getSportTypeLabel(sportType)}</Label>
-                          </div>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                  {selectedSportTypes.size > 0 && (
-                    <>
-                      <CommandSeparator />
-                      <CommandGroup>
-                        <CommandItem className="py-1" onSelect={clearFilters}>
-                          Clear filters
-                        </CommandItem>
-                      </CommandGroup>
-                    </>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  className={cn(
+                    "h-8",
+                    selectedSportTypes.size > 0 && "bg-accent"
                   )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                  size="sm"
+                  variant="outline"
+                >
+                  <Filter className="size-3.5" />
+                  <span>Activity</span>
+                  {selectedSportTypes.size > 0 && (
+                    <Badge
+                      className="ml-1 size-5 rounded-full p-0"
+                      variant="secondary"
+                    >
+                      {selectedSportTypes.size}
+                    </Badge>
+                  )}
+                  <ChevronDown className="size-3.5 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search types..." />
+                  <CommandList>
+                    <CommandEmpty>No types found.</CommandEmpty>
+                    <CommandGroup>
+                      {availableSportTypes.map((sportType) => {
+                        const isSelected = selectedSportTypes.has(sportType);
+                        return (
+                          <CommandItem
+                            key={sportType}
+                            onSelect={() => toggleSportType(sportType)}
+                          >
+                            <div className="flex w-full items-center gap-2">
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() =>
+                                  toggleSportType(sportType)
+                                }
+                              />
+                              <Label className="flex-1 cursor-pointer">
+                                {getSportTypeLabel(sportType)}
+                              </Label>
+                            </div>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                    {selectedSportTypes.size > 0 && (
+                      <>
+                        <CommandSeparator />
+                        <CommandGroup>
+                          <CommandItem
+                            className="justify-center text-muted-foreground text-xs"
+                            onSelect={() => setSelectedSportTypes(new Set())}
+                          >
+                            Clear selection
+                          </CommandItem>
+                        </CommandGroup>
+                      </>
+                    )}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
-          <Popover>
-            <PopoverTrigger asChild>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  className={cn("h-8", dateRange?.from && "bg-accent")}
+                  size="sm"
+                  variant="outline"
+                >
+                  <CalendarDays className="size-3.5" />
+                  <span>
+                    {dateRange?.from
+                      ? formatDateRangeDisplay(dateRange)
+                      : "Date"}
+                  </span>
+                  <ChevronDown className="size-3.5 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <Calendar
+                  defaultMonth={
+                    dateRange?.from ||
+                    (activities.length > 0
+                      ? new Date(activities[0].start_date)
+                      : new Date())
+                  }
+                  mode="range"
+                  numberOfMonths={1}
+                  onSelect={setDateRange}
+                  selected={dateRange}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {hasActiveFilters && (
               <Button
-                className={cn(
-                  dateRange?.from
-                    ? "bg-accent"
-                    : "font-normal text-muted-foreground hover:text-muted-foreground"
-                )}
-                size={"sm"}
+                className="h-8 text-muted-foreground"
+                onClick={clearAllFilters}
+                size="sm"
                 variant="ghost"
               >
-                Date
-                {dateRange?.from && (
-                  <>
-                    :
-                    <span className="inline-block max-w-[150px] truncate font-normal">
-                      {formatDateRangeDisplay(dateRange)}
-                    </span>
-                  </>
-                )}
-                <ChevronDown />
+                <X className="size-3.5" />
+                Clear
               </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-auto p-0">
-              <Calendar
-                defaultMonth={
-                  dateRange?.from ||
-                  (activities.length > 0
-                    ? new Date(activities[0].start_date)
-                    : new Date())
-                }
-                mode="range"
-                numberOfMonths={1}
-                onSelect={setDateRange}
-                selected={dateRange}
-              />
-            </PopoverContent>
-          </Popover>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground text-sm">
+              {filteredActivities.length} of {activities.length}
+            </span>
+
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="size-8"
+                    onClick={copyActivitiesToClipboard}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <Image
+                      alt="Claude"
+                      height={18}
+                      src="/claude-logo.png"
+                      width={18}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Copy as JSON for Claude</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    className="size-8"
+                    disabled={syncMutation.isPending}
+                    onClick={handleSync}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    {syncMutation.isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="size-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Sync activities</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
         </div>
 
-        {/* Activities List */}
-        <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filteredActivities.map((activity) => (
             <ActivityCard activity={activity} key={activity.id} />
           ))}
         </div>
-      </TabsContent>
-
-      <TabsContent value="table">
-        <div className="text-center text-muted-foreground">
-          Table view coming soon
-        </div>
-      </TabsContent>
-
-      <TabsContent value="json">
-        <div className="text-center text-muted-foreground">
-          JSON view coming soon
-        </div>
-      </TabsContent>
-    </Tabs>
+      </div>
+    </div>
   );
 };
