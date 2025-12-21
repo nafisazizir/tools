@@ -2,9 +2,7 @@
 
 import type { StravaActivity } from "@repo/database";
 import { Badge } from "@repo/design-system/components/ui/badge";
-import { cn } from "@repo/design-system/lib/utils";
-import { ChevronDown, ChevronUp, Heart } from "lucide-react";
-import { useState } from "react";
+import { Heart } from "lucide-react";
 import { SportTypeIcon } from "@/components/sport-type-icon";
 import { formatDuration, formatPace, METERS_PER_KM } from "./activity-utils";
 
@@ -16,30 +14,23 @@ type StatItemProps = {
   label: string;
   value: string;
   unit?: string;
-  highlight?: boolean;
 };
 
-const StatItem = ({ label, value, unit, highlight }: StatItemProps) => (
-  <div className="flex flex-col">
-    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">
+const StatItem = ({ label, value, unit }: StatItemProps) => (
+  <div className="flex flex-col gap-0.5">
+    <span className="font-mono text-[10px] text-muted-foreground uppercase">
       {label}
     </span>
     <div className="flex items-baseline gap-0.5">
-      <span
-        className={cn(
-          "font-semibold tabular-nums",
-          highlight ? "text-lg" : "text-base"
-        )}
-      >
-        {value}
-      </span>
-      {unit && <span className="text-muted-foreground text-xs">{unit}</span>}
+      <span className="font-mono tabular-nums">{value}</span>
+      {unit && (
+        <span className="font-mono text-muted-foreground text-xs">{unit}</span>
+      )}
     </div>
   </div>
 );
 
 export const ActivityCard = ({ activity }: ActivityCardProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const date = new Date(activity.start_date_local);
 
   const distance = activity.distance
@@ -54,9 +45,6 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
     activity.moving_time && activity.distance
       ? formatPace(activity.moving_time / (activity.distance / METERS_PER_KM))
       : null;
-
-  const hasDescription =
-    activity.description && activity.description.length > 0;
 
   return (
     <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md">
@@ -90,7 +78,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
 
         {activity.has_heartrate && activity.average_heartrate && (
           <Badge
-            className="shrink-0 gap-1 bg-rose-500/10 text-rose-600 dark:text-rose-400"
+            className="shrink-0 gap-1 bg-rose-500/10 font-mono text-rose-600 dark:text-rose-400"
             variant="secondary"
           >
             <Heart className="size-3" />
@@ -100,34 +88,10 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-        {distance && (
-          <StatItem highlight label="Distance" unit="km" value={distance} />
-        )}
+        {distance && <StatItem label="Distance" unit="km" value={distance} />}
         {duration && <StatItem label="Time" value={duration} />}
-        {pace && <StatItem label="Pace" value={pace} />}
+        {pace && <StatItem label="Pace" unit="/km" value={pace} />}
       </div>
-
-      {hasDescription && (
-        <div className="mt-3 border-t pt-3">
-          <button
-            className="flex w-full items-center justify-between text-muted-foreground text-xs transition-colors hover:text-foreground"
-            onClick={() => setIsExpanded(!isExpanded)}
-            type="button"
-          >
-            <span>Notes</span>
-            {isExpanded ? (
-              <ChevronUp className="size-3.5" />
-            ) : (
-              <ChevronDown className="size-3.5" />
-            )}
-          </button>
-          {isExpanded && (
-            <p className="mt-2 whitespace-pre-wrap text-muted-foreground text-sm">
-              {activity.description}
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };

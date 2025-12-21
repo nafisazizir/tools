@@ -28,20 +28,22 @@ const StatCard = ({
 }: StatCardProps) => (
   <div
     className={cn(
-      "group relative flex flex-col gap-1 rounded-xl bg-muted/50 p-4 transition-colors hover:bg-muted/80",
+      "group relative flex flex-col gap-1.5 rounded-xl bg-muted/50 p-4 transition-colors hover:bg-muted/80",
       className
     )}
   >
     <div className="flex items-center gap-2 text-muted-foreground">
       {icon}
-      <span className="font-medium text-xs uppercase tracking-wider">
-        {label}
-      </span>
+      <span className="font-mono text-[10px] uppercase">{label}</span>
     </div>
-    <div className="flex items-baseline gap-1.5">
-      <span className="font-semibold text-2xl tracking-tight">{value}</span>
+    <div className="flex items-baseline gap-1">
+      <span className="font-mono text-2xl tabular-nums tracking-tight">
+        {value}
+      </span>
       {subValue && (
-        <span className="text-muted-foreground text-sm">{subValue}</span>
+        <span className="font-mono text-muted-foreground text-xs">
+          {subValue}
+        </span>
       )}
     </div>
   </div>

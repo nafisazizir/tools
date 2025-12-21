@@ -22,7 +22,7 @@ export function formatDuration(seconds: number): string {
 export function formatPace(secondsPerKm: number): string {
   const minutes = Math.floor(secondsPerKm / 60);
   const seconds = Math.floor(secondsPerKm % 60);
-  return `${minutes}:${seconds.toString().padStart(2, "0")} /km`;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
 export function formatDateTime(date: Date): string {
