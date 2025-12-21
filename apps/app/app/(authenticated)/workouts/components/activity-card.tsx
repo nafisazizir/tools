@@ -4,7 +4,16 @@ import type { StravaActivity } from "@repo/database";
 import { Badge } from "@repo/design-system/components/ui/badge";
 import { Heart } from "lucide-react";
 import { SportTypeIcon } from "@/components/sport-type-icon";
-import { formatDuration, formatPace, METERS_PER_KM } from "./activity-utils";
+import {
+  formatCalories,
+  formatDistance,
+  formatDuration,
+  formatElevation,
+  formatHeartRate,
+  formatPace,
+  formatSwimPace,
+  METERS_PER_KM,
+} from "./activity-utils";
 
 type ActivityCardProps = {
   activity: StravaActivity;
@@ -15,6 +24,74 @@ type StatItemProps = {
   value: string;
   unit?: string;
 };
+
+type MetricConfig = {
+  label: string;
+  getValue: (activity: StravaActivity) => string | null;
+  unit?: string;
+};
+
+const METRICS = {
+  Distance: {
+    label: "Distance",
+    getValue: (a: StravaActivity) => formatDistance(a.distance),
+    unit: "km",
+  },
+  ElevGain: {
+    label: "Elev Gain",
+    getValue: (a: StravaActivity) => formatElevation(a.total_elevation_gain),
+    unit: "m",
+  },
+  Time: {
+    label: "Time",
+    getValue: (a: StravaActivity) =>
+      a.moving_time ? formatDuration(a.moving_time) : null,
+  },
+  Pace: {
+    label: "Pace",
+    getValue: (a: StravaActivity) => {
+      if (!a.moving_time) {
+        return null;
+      }
+      if (!a.distance) {
+        return null;
+      }
+      return formatPace(a.moving_time / (a.distance / METERS_PER_KM));
+    },
+    unit: "/km",
+  },
+  SwimPace: {
+    label: "Pace",
+    getValue: (a: StravaActivity) => formatSwimPace(a.moving_time, a.distance),
+    unit: "/100m",
+  },
+  AvgHR: {
+    label: "Avg HR",
+    getValue: (a: StravaActivity) => formatHeartRate(a.average_heartrate),
+    unit: "bpm",
+  },
+  Calories: {
+    label: "Cal",
+    getValue: (a: StravaActivity) => formatCalories(a.calories),
+  },
+} as const satisfies Record<string, MetricConfig>;
+
+const SPORT_TYPE_METRICS: Record<string, MetricConfig[]> = {
+  Ride: [METRICS.Distance, METRICS.ElevGain, METRICS.Time],
+  Run: [METRICS.Distance, METRICS.Pace, METRICS.Time],
+  Walk: [METRICS.Distance, METRICS.Time],
+  Yoga: [METRICS.Time, METRICS.AvgHR, METRICS.Calories],
+  Swim: [{ ...METRICS.Distance, unit: "m" }, METRICS.Time, METRICS.SwimPace],
+  Hike: [METRICS.Distance, METRICS.ElevGain, METRICS.Time],
+  Workout: [METRICS.Time, METRICS.AvgHR, METRICS.Calories],
+  WeightTraining: [METRICS.Time, METRICS.AvgHR, METRICS.Calories],
+};
+
+const DEFAULT_METRICS: MetricConfig[] = [
+  METRICS.Time,
+  METRICS.AvgHR,
+  METRICS.Calories,
+];
 
 const StatItem = ({ label, value, unit }: StatItemProps) => (
   <div className="flex flex-col gap-0.5">
@@ -32,19 +109,8 @@ const StatItem = ({ label, value, unit }: StatItemProps) => (
 
 export const ActivityCard = ({ activity }: ActivityCardProps) => {
   const date = new Date(activity.start_date_local);
-
-  const distance = activity.distance
-    ? (activity.distance / METERS_PER_KM).toFixed(2)
-    : null;
-
-  const duration = activity.moving_time
-    ? formatDuration(activity.moving_time)
-    : null;
-
-  const pace =
-    activity.moving_time && activity.distance
-      ? formatPace(activity.moving_time / (activity.distance / METERS_PER_KM))
-      : null;
+  const metrics =
+    SPORT_TYPE_METRICS[activity.sport_type || ""] ?? DEFAULT_METRICS;
 
   return (
     <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md">
@@ -88,9 +154,20 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-        {distance && <StatItem label="Distance" unit="km" value={distance} />}
-        {duration && <StatItem label="Time" value={duration} />}
-        {pace && <StatItem label="Pace" unit="/km" value={pace} />}
+        {metrics.map((metric) => {
+          const value = metric.getValue(activity);
+          if (!value) {
+            return null;
+          }
+          return (
+            <StatItem
+              key={metric.label}
+              label={metric.label}
+              unit={metric.unit}
+              value={value}
+            />
+          );
+        })}
       </div>
     </div>
   );

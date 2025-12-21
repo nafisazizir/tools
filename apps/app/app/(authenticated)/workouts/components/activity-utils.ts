@@ -37,3 +37,48 @@ export function formatDateTime(date: Date): string {
     year: "numeric",
   })} at ${timeString}`;
 }
+
+export function formatDistance(meters: number | null): string | null {
+  if (!meters) {
+    return null;
+  }
+  return (meters / METERS_PER_KM).toFixed(2);
+}
+
+export function formatElevation(meters: number | null): string | null {
+  if (!meters) {
+    return null;
+  }
+  return Math.round(meters).toString();
+}
+
+export function formatHeartRate(bpm: number | null | undefined): string | null {
+  if (!bpm) {
+    return null;
+  }
+  return bpm.toFixed(0);
+}
+
+export function formatCalories(cal: number | null | undefined): string | null {
+  if (!cal) {
+    return null;
+  }
+  return Math.round(cal).toString();
+}
+
+const METERS_PER_100M = 100;
+const KM_PER_100M = 10;
+
+export function formatSwimPace(
+  movingTime: number | null,
+  distance: number | null
+): string | null {
+  if (!movingTime) {
+    return null;
+  }
+  if (!distance) {
+    return null;
+  }
+  const secondsPer100m = (movingTime / distance) * METERS_PER_100M;
+  return formatPace(secondsPer100m * KM_PER_100M);
+}
