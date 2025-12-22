@@ -113,7 +113,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
     SPORT_TYPE_METRICS[activity.sport_type || ""] ?? DEFAULT_METRICS;
 
   return (
-    <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md">
+    <div className="group rounded-xl border bg-card p-4 transition-all">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -123,7 +123,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="line-clamp-1 font-semibold text-sm leading-tight">
+            <h3 className="line-clamp-1 font-semibold text-sm">
               {activity.name}
             </h3>
             <p className="mt-0.5 text-muted-foreground text-xs">
@@ -143,10 +143,7 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
         </div>
 
         {activity.has_heartrate && activity.average_heartrate && (
-          <Badge
-            className="shrink-0 gap-1 bg-rose-500/10 font-mono text-rose-600 dark:text-rose-400"
-            variant="secondary"
-          >
+          <Badge className="shrink-0 gap-1 font-mono" variant="secondary">
             <Heart className="size-3" />
             {activity.average_heartrate.toFixed(0)}
           </Badge>

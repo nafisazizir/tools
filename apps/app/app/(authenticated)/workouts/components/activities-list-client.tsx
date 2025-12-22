@@ -8,7 +8,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
@@ -292,7 +291,6 @@ export const ActivitiesListClient = ({
               </PopoverTrigger>
               <PopoverContent align="start" className="w-[200px] p-0">
                 <Command>
-                  <CommandInput placeholder="Search types..." />
                   <CommandList>
                     <CommandEmpty>No types found.</CommandEmpty>
                     <CommandGroup>
