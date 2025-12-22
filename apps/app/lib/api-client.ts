@@ -105,6 +105,69 @@ class ApiClient {
       body: JSON.stringify(params),
     });
   }
+
+  // Garmin Connection
+  async getGarminConnection() {
+    return await this.request<{
+      connected: boolean;
+      displayName?: string;
+      fullName?: string;
+      lastSync?: string;
+      lastError?: string;
+    }>("/garmin/connection");
+  }
+
+  async connectGarmin(credentials: { email: string; password: string }) {
+    return await this.request<{
+      success: boolean;
+      displayName?: string;
+      fullName?: string;
+      error?: string;
+    }>("/garmin/connect", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  async disconnectGarmin() {
+    return await this.request<{ success: boolean }>("/garmin/disconnect", {
+      method: "POST",
+    });
+  }
+
+  // Garmin Sleep
+  async getGarminSleep(params?: { days?: number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.days) {
+      searchParams.append("days", params.days.toString());
+    }
+    const query = searchParams.toString();
+    return await this.request<{
+      data: Array<{
+        date: string;
+        sleepScore: number | null;
+        totalHours: number;
+        deepHours: number;
+        lightHours: number;
+        remHours: number;
+        awakeHours: number;
+        sleepStart: string;
+        sleepEnd: string;
+        quality: "excellent" | "good" | "fair" | "poor";
+      }>;
+    }>(`/garmin/sleep${query ? `?${query}` : ""}`);
+  }
+
+  async syncGarminSleep(params?: { days?: number }) {
+    return await this.request<{
+      success: boolean;
+      syncedDays: number;
+      errors?: string[];
+    }>("/garmin/sync", {
+      method: "POST",
+      body: JSON.stringify(params ?? {}),
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

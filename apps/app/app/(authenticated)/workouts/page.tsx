@@ -11,6 +11,7 @@ import { apiClient } from "@/lib/api-client";
 import { Header } from "../components/header";
 import { ActivitiesList } from "./components/activities-list";
 import { DataSources } from "./components/data-sources";
+import { GarminSleepDisplay } from "./components/garmin-sleep-display";
 
 const title = "Workouts";
 const description = "Track and manage your workout data";
@@ -21,31 +22,60 @@ export const metadata: Metadata = {
 };
 
 const WorkoutsPage = async () => {
-  const connectionData = await apiClient.getStravaConnection();
-  const connection = connectionData.connected
+  const [stravaConnectionData, garminConnectionResult] = await Promise.all([
+    apiClient.getStravaConnection(),
+    apiClient.getGarminConnection().catch(() => ({
+      connected: false as const,
+      displayName: undefined,
+      fullName: undefined,
+      lastSync: undefined,
+      lastError: undefined,
+    })),
+  ]);
+
+  const stravaConnection = stravaConnectionData.connected
     ? {
-        athleteId: connectionData.athleteId,
-        firstname: connectionData.firstname ?? null,
-        lastname: connectionData.lastname ?? null,
-        profile: connectionData.profile ?? null,
-        city: connectionData.city ?? null,
-        state: connectionData.state ?? null,
-        country: connectionData.country ?? null,
-        summit: connectionData.summit ?? null,
+        athleteId: stravaConnectionData.athleteId,
+        firstname: stravaConnectionData.firstname ?? null,
+        lastname: stravaConnectionData.lastname ?? null,
+        profile: stravaConnectionData.profile ?? null,
+        city: stravaConnectionData.city ?? null,
+        state: stravaConnectionData.state ?? null,
+        country: stravaConnectionData.country ?? null,
+        summit: stravaConnectionData.summit ?? null,
       }
     : null;
 
-  const athleteId = connectionData.connected
-    ? connection?.athleteId
+  const athleteId = stravaConnectionData.connected
+    ? stravaConnection?.athleteId
     : undefined;
+
+  const garminSleepData = garminConnectionResult.connected
+    ? await apiClient.getGarminSleep({ days: 14 }).catch(() => ({ data: [] }))
+    : { data: [] };
 
   return (
     <>
       <Header page="Workouts" pages={[]} />
       <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
         <DataSources
-          stravaAthleteData={connection ?? undefined}
-          stravaConnected={connectionData.connected}
+          stravaAthleteData={stravaConnection ?? undefined}
+          stravaConnected={stravaConnectionData.connected}
+          garminConnected={garminConnectionResult.connected}
+          garminConnectionData={
+            garminConnectionResult.connected
+              ? {
+                  displayName: garminConnectionResult.displayName,
+                  fullName: garminConnectionResult.fullName,
+                }
+              : undefined
+          }
+        />
+
+        <GarminSleepDisplay
+          connected={garminConnectionResult.connected}
+          sleepData={garminSleepData.data}
+          lastSync={garminConnectionResult.lastSync}
         />
 
         {athleteId ? (

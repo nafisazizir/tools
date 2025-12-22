@@ -13,6 +13,8 @@ import { Check, Loader2, LogOut, Plus } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api-client";
+import { GarminConnectDialog } from "./garmin-connect-dialog";
 
 const noop = () => {
   // Intentionally empty - placeholder for disabled sources
@@ -28,9 +30,16 @@ type AthleteData = {
   summit: boolean | null;
 };
 
+type GarminConnectionData = {
+  displayName?: string;
+  fullName?: string;
+};
+
 type DataSourcesProps = {
   stravaConnected: boolean;
   stravaAthleteData?: AthleteData;
+  garminConnected: boolean;
+  garminConnectionData?: GarminConnectionData;
 };
 
 type SourceItemProps = {
@@ -186,13 +195,18 @@ const SourceItem = ({
 };
 
 export const DataSources = ({
-  stravaConnected: initialConnected,
+  stravaConnected: initialStravaConnected,
   stravaAthleteData,
+  garminConnected: initialGarminConnected,
+  garminConnectionData,
 }: DataSourcesProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [stravaConnected, setStravaConnected] = useState(initialConnected);
-  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [stravaConnected, setStravaConnected] = useState(initialStravaConnected);
+  const [garminConnected, setGarminConnected] = useState(initialGarminConnected);
+  const [isStravaDisconnecting, setIsStravaDisconnecting] = useState(false);
+  const [isGarminDisconnecting, setIsGarminDisconnecting] = useState(false);
+  const [garminDialogOpen, setGarminDialogOpen] = useState(false);
 
   useEffect(() => {
     const connected = searchParams.get("connected");
@@ -209,7 +223,7 @@ export const DataSources = ({
   };
 
   const handleStravaDisconnect = async () => {
-    setIsDisconnecting(true);
+    setIsStravaDisconnecting(true);
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
       const response = await fetch(`${apiUrl}/strava/disconnect`, {
@@ -220,9 +234,31 @@ export const DataSources = ({
         router.refresh();
       }
     } catch (error) {
-      log.error(`Failed to disconnect: ${error}`);
+      log.error(`Failed to disconnect Strava: ${error}`);
     } finally {
-      setIsDisconnecting(false);
+      setIsStravaDisconnecting(false);
+    }
+  };
+
+  const handleGarminConnect = () => {
+    setGarminDialogOpen(true);
+  };
+
+  const handleGarminConnectSuccess = () => {
+    setGarminConnected(true);
+    router.refresh();
+  };
+
+  const handleGarminDisconnect = async () => {
+    setIsGarminDisconnecting(true);
+    try {
+      await apiClient.disconnectGarmin();
+      setGarminConnected(false);
+      router.refresh();
+    } catch (error) {
+      log.error(`Failed to disconnect Garmin: ${error}`);
+    } finally {
+      setIsGarminDisconnecting(false);
     }
   };
 
@@ -231,42 +267,53 @@ export const DataSources = ({
       ? `${stravaAthleteData.firstname} ${stravaAthleteData.lastname}`
       : undefined;
 
+  const garminDisplayName =
+    garminConnectionData?.fullName ?? garminConnectionData?.displayName;
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-muted-foreground text-sm">
-          Data Sources
-        </h3>
+    <>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-muted-foreground text-sm">
+            Data Sources
+          </h3>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <SourceItem
+            athleteName={stravaAthleteName}
+            isConnected={stravaConnected}
+            isLoading={isStravaDisconnecting}
+            logo="/strava-logo.png"
+            name="Strava"
+            onConnect={handleStravaConnect}
+            onDisconnect={handleStravaDisconnect}
+          />
+          <SourceItem
+            athleteName={garminDisplayName}
+            isConnected={garminConnected}
+            isLoading={isGarminDisconnecting}
+            logo="/garmin-logo.png"
+            name="Garmin"
+            onConnect={handleGarminConnect}
+            onDisconnect={handleGarminDisconnect}
+          />
+          <SourceItem
+            disabled
+            disabledReason="Requires Hevy Pro subscription"
+            isConnected={false}
+            logo="/hevy-logo.png"
+            name="Hevy"
+            onConnect={noop}
+            onDisconnect={noop}
+          />
+        </div>
       </div>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        <SourceItem
-          athleteName={stravaAthleteName}
-          isConnected={stravaConnected}
-          isLoading={isDisconnecting}
-          logo="/strava-logo.png"
-          name="Strava"
-          onConnect={handleStravaConnect}
-          onDisconnect={handleStravaDisconnect}
-        />
-        <SourceItem
-          disabled
-          disabledReason="Garmin Connect API not available"
-          isConnected={false}
-          logo="/garmin-logo.png"
-          name="Garmin"
-          onConnect={noop}
-          onDisconnect={noop}
-        />
-        <SourceItem
-          disabled
-          disabledReason="Requires Hevy Pro subscription"
-          isConnected={false}
-          logo="/hevy-logo.png"
-          name="Hevy"
-          onConnect={noop}
-          onDisconnect={noop}
-        />
-      </div>
-    </div>
+
+      <GarminConnectDialog
+        open={garminDialogOpen}
+        onOpenChange={setGarminDialogOpen}
+        onSuccess={handleGarminConnectSuccess}
+      />
+    </>
   );
 };
