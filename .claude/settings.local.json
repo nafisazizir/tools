@@ -1,23 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npm run dev:*)",
-      "WebFetch(domain:www.next-forge.com)",
-      "Bash(xargs du:*)",
-      "Bash(cat:*)",
-      "Bash(ls:*)",
-      "Bash(find:*)",
-      "Bash(tree:*)",
-      "WebFetch(domain:www.npmjs.com)",
-      "WebSearch",
-      "Bash(npx prisma:*)",
-      "Bash(curl:*)",
-      "Bash(lsof:*)",
-      "Bash(npx biome:*)",
-      "WebFetch(domain:github.com)",
-      "Bash(pnpm tsc:*)"
-    ],
-    "deny": [],
-    "ask": []
+    "defaultMode": "bypassPermissions"
   }
 }

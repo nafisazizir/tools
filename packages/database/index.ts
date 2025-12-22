@@ -20,7 +20,6 @@ if (process.env.NODE_ENV !== "production") {
 
 // biome-ignore lint/performance/noBarrelFile: false positive
 export * from "./generated/client";
-
 export { StravaClient } from "./strava-client";
 export {
   detailedActivityToPrisma,

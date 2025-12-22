@@ -37,5 +37,5 @@ export function middleware(request: NextRequest) {
 
 // Configure which routes use this middleware
 export const config = {
-  matcher: "/strava/:path*",
+  matcher: ["/strava/:path*", "/garmin/:path*"],
 };

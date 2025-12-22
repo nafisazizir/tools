@@ -42,11 +42,14 @@ export const GET = async (request: Request) => {
 
     const data = await tokenResponse.json();
 
-    const athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
-      headers: {
-        Authorization: `Bearer ${data.access_token}`,
-      },
-    });
+    const athleteResponse = await fetch(
+      "https://www.strava.com/api/v3/athlete",
+      {
+        headers: {
+          Authorization: `Bearer ${data.access_token}`,
+        },
+      }
+    );
 
     const athleteData = await athleteResponse.json();
 

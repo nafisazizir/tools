@@ -123,3 +123,41 @@ model StravaActivity {
   @@index([sport_type])
   @@index([start_date])
 }
+
+model GarminConnection {
+  id                 Int       @id @default(1)
+  encryptedEmail     String
+  encryptedPassword  String
+  oauth1Token        Json?
+  oauth2Token        Json?
+  displayName        String?
+  fullName           String?
+  profileImageUrl    String?
+  lastSuccessfulSync DateTime?
+  lastError          String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model GarminSleep {
+  id                   String   @id // "YYYY-MM-DD"
+  sleepScore           Int?
+  totalSleepSeconds    Int
+  deepSleepSeconds     Int?
+  lightSleepSeconds    Int?
+  remSleepSeconds      Int?
+  awakeSleepSeconds    Int?
+  unmeasurableSeconds  Int?
+  sleepStartTime       DateTime
+  sleepEndTime         DateTime
+  restlessMomentsCount Int?
+  avgSleepStress       Float?
+  sleepLevels          Json?
+  sleepMovement        Json?
+  rawSleepDTO          Json?
+  lastSyncedAt         DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([sleepStartTime])
+}
