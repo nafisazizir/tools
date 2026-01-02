@@ -4,3 +4,8 @@ export const activitiesKeys = {
   all: ["activities"] as const,
   byAthlete: (athleteId: string) => ["activities", athleteId] as const,
 };
+
+export const sleepKeys = {
+  all: ["sleep"] as const,
+  data: (days: number) => ["sleep", "data", days] as const,
+};

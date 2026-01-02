@@ -70,7 +70,7 @@ export const StatsOverview = ({ activities }: StatsOverviewProps) => {
   const distanceKm = (totalDistance / METERS_PER_KM).toFixed(1);
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="grid h-full grid-cols-2 gap-3">
       <StatCard
         icon={<Activity className="size-4" />}
         label="Activities"

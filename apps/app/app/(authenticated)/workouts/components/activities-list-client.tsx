@@ -14,7 +14,6 @@ import {
 } from "@repo/design-system/components/ui/command";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -33,26 +32,14 @@ import {
 } from "@repo/design-system/components/ui/tooltip";
 import { cn } from "@repo/design-system/lib/utils";
 import { log } from "@repo/observability/log";
-import {
-  CalendarDays,
-  ChevronDown,
-  Filter,
-  FolderX,
-  Loader2,
-  RefreshCw,
-  X,
-} from "lucide-react";
+import { CalendarDays, ChevronDown, Filter, FolderX, X } from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
-import {
-  useActivitiesQuery,
-  useSyncActivitiesMutation,
-} from "@/hooks/use-activities-query";
+import { useActivitiesQuery } from "@/hooks/use-activities-query";
 import { getSportTypeLabel } from "@/lib/strava-sport-types";
 import { ActivityCard } from "./activity-card";
-import { StatsOverview } from "./stats-overview";
 
 type ActivitiesListClientProps = {
   athleteId: string;
@@ -65,7 +52,6 @@ export const ActivitiesListClient = ({
   athleteId,
 }: ActivitiesListClientProps) => {
   const { data } = useActivitiesQuery(athleteId);
-  const syncMutation = useSyncActivitiesMutation();
 
   const [selectedSportTypes, setSelectedSportTypes] = useState<Set<string>>(
     new Set()
@@ -187,43 +173,6 @@ export const ActivitiesListClient = ({
     }
   };
 
-  const handleSync = () => {
-    if (!athleteId) {
-      toast.error("Error", {
-        description: "Please connect your Strava account first",
-      });
-      return;
-    }
-
-    syncMutation.mutate(
-      { athleteId },
-      {
-        onSuccess: (result) => {
-          const parts: string[] = [];
-          if (result.created > 0) {
-            parts.push(`${result.created} new`);
-          }
-          if (result.updated > 0) {
-            parts.push(`${result.updated} updated`);
-          }
-          if (result.deleted > 0) {
-            parts.push(`${result.deleted} deleted`);
-          }
-
-          toast.success("Sync complete", {
-            description: parts.length > 0 ? parts.join(", ") : "No changes",
-          });
-        },
-        onError: (error) => {
-          log.error(`Failed to sync activities: ${error}`);
-          toast.error("Sync failed", {
-            description: "Failed to sync activities. Please try again.",
-          });
-        },
-      }
-    );
-  };
-
   if (activities.length === 0) {
     return (
       <Empty>
@@ -233,204 +182,156 @@ export const ActivitiesListClient = ({
           </EmptyMedia>
           <EmptyTitle>No Activities Yet</EmptyTitle>
           <EmptyDescription>
-            Sync your activities from connected sources to see them here
+            Use the sync button above to fetch your activities
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <Button
-            disabled={syncMutation.isPending}
-            onClick={handleSync}
-            variant="outline"
-          >
-            {syncMutation.isPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="size-4" />
-                Sync Activities
-              </>
-            )}
-          </Button>
-        </EmptyContent>
       </Empty>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <StatsOverview activities={filteredActivities} />
-
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className={cn(
-                    "h-8",
-                    selectedSportTypes.size > 0 && "bg-accent"
-                  )}
-                  size="sm"
-                  variant="outline"
-                >
-                  <Filter className="size-3.5" />
-                  <span>Activity</span>
-                  {selectedSportTypes.size > 0 && (
-                    <Badge
-                      className="ml-1 size-5 rounded-full p-0"
-                      variant="secondary"
-                    >
-                      {selectedSportTypes.size}
-                    </Badge>
-                  )}
-                  <ChevronDown className="size-3.5 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-[200px] p-0">
-                <Command>
-                  <CommandList>
-                    <CommandEmpty>No types found.</CommandEmpty>
-                    <CommandGroup>
-                      {availableSportTypes.map((sportType) => {
-                        const isSelected = selectedSportTypes.has(sportType);
-                        return (
-                          <CommandItem
-                            key={sportType}
-                            onSelect={() => toggleSportType(sportType)}
-                          >
-                            <div className="flex w-full items-center gap-2">
-                              <Checkbox
-                                checked={isSelected}
-                                onCheckedChange={() =>
-                                  toggleSportType(sportType)
-                                }
-                              />
-                              <Label className="flex-1 cursor-pointer">
-                                {getSportTypeLabel(sportType)}
-                              </Label>
-                            </div>
-                          </CommandItem>
-                        );
-                      })}
-                    </CommandGroup>
-                    {selectedSportTypes.size > 0 && (
-                      <>
-                        <CommandSeparator />
-                        <CommandGroup>
-                          <CommandItem
-                            className="justify-center text-muted-foreground text-xs"
-                            onSelect={() => setSelectedSportTypes(new Set())}
-                          >
-                            Clear selection
-                          </CommandItem>
-                        </CommandGroup>
-                      </>
-                    )}
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className={cn("h-8", dateRange?.from && "bg-accent")}
-                  size="sm"
-                  variant="outline"
-                >
-                  <CalendarDays className="size-3.5" />
-                  <span>
-                    {dateRange?.from
-                      ? formatDateRangeDisplay(dateRange)
-                      : "Date"}
-                  </span>
-                  <ChevronDown className="size-3.5 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-auto p-0">
-                <Calendar
-                  defaultMonth={
-                    dateRange?.from ||
-                    (activities.length > 0
-                      ? new Date(activities[0].start_date)
-                      : new Date())
-                  }
-                  mode="range"
-                  numberOfMonths={1}
-                  onSelect={setDateRange}
-                  selected={dateRange}
-                />
-              </PopoverContent>
-            </Popover>
-
-            {hasActiveFilters && (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                className="h-8 text-muted-foreground"
-                onClick={clearAllFilters}
+                className={cn(
+                  "h-8",
+                  selectedSportTypes.size > 0 && "bg-accent"
+                )}
                 size="sm"
+                variant="outline"
+              >
+                <Filter className="size-3.5" />
+                <span>Activity</span>
+                {selectedSportTypes.size > 0 && (
+                  <Badge
+                    className="ml-1 size-5 rounded-full p-0"
+                    variant="secondary"
+                  >
+                    {selectedSportTypes.size}
+                  </Badge>
+                )}
+                <ChevronDown className="size-3.5 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-[200px] p-0">
+              <Command>
+                <CommandList>
+                  <CommandEmpty>No types found.</CommandEmpty>
+                  <CommandGroup>
+                    {availableSportTypes.map((sportType) => {
+                      const isSelected = selectedSportTypes.has(sportType);
+                      return (
+                        <CommandItem
+                          key={sportType}
+                          onSelect={() => toggleSportType(sportType)}
+                        >
+                          <div className="flex w-full items-center gap-2">
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => toggleSportType(sportType)}
+                            />
+                            <Label className="flex-1 cursor-pointer">
+                              {getSportTypeLabel(sportType)}
+                            </Label>
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                  {selectedSportTypes.size > 0 && (
+                    <>
+                      <CommandSeparator />
+                      <CommandGroup>
+                        <CommandItem
+                          className="justify-center text-muted-foreground text-xs"
+                          onSelect={() => setSelectedSportTypes(new Set())}
+                        >
+                          Clear selection
+                        </CommandItem>
+                      </CommandGroup>
+                    </>
+                  )}
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                className={cn("h-8", dateRange?.from && "bg-accent")}
+                size="sm"
+                variant="outline"
+              >
+                <CalendarDays className="size-3.5" />
+                <span>
+                  {dateRange?.from ? formatDateRangeDisplay(dateRange) : "Date"}
+                </span>
+                <ChevronDown className="size-3.5 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-auto p-0">
+              <Calendar
+                defaultMonth={
+                  dateRange?.from ||
+                  (activities.length > 0
+                    ? new Date(activities[0].start_date)
+                    : new Date())
+                }
+                mode="range"
+                numberOfMonths={1}
+                onSelect={setDateRange}
+                selected={dateRange}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {hasActiveFilters && (
+            <Button
+              className="h-8 text-muted-foreground"
+              onClick={clearAllFilters}
+              size="sm"
+              variant="ghost"
+            >
+              <X className="size-3.5" />
+              Clear
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground text-sm">
+            {filteredActivities.length} of {activities.length}
+          </span>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="size-8"
+                onClick={copyActivitiesToClipboard}
+                size="icon"
                 variant="ghost"
               >
-                <X className="size-3.5" />
-                Clear
+                <Image
+                  alt="Claude"
+                  height={18}
+                  src="/claude-logo.png"
+                  width={18}
+                />
               </Button>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-sm">
-              {filteredActivities.length} of {activities.length}
-            </span>
-
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="size-8"
-                    onClick={copyActivitiesToClipboard}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    <Image
-                      alt="Claude"
-                      height={18}
-                      src="/claude-logo.png"
-                      width={18}
-                    />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Copy as JSON for Claude</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="size-8"
-                    disabled={syncMutation.isPending}
-                    onClick={handleSync}
-                    size="icon"
-                    variant="ghost"
-                  >
-                    {syncMutation.isPending ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <RefreshCw className="size-4" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Sync activities</TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
+            </TooltipTrigger>
+            <TooltipContent>Copy as JSON for Claude</TooltipContent>
+          </Tooltip>
         </div>
+      </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredActivities.map((activity) => (
-            <ActivityCard activity={activity} key={activity.id} />
-          ))}
-        </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredActivities.map((activity) => (
+          <ActivityCard activity={activity} key={activity.id} />
+        ))}
       </div>
     </div>
   );

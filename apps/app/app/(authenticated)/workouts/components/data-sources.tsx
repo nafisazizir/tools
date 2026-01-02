@@ -145,7 +145,7 @@ const SourceItem = ({
           width={24}
         />
         {isConnected && (
-          <div className="-bottom-1 -right-1 absolute flex size-4 items-center justify-center rounded-full bg-success">
+          <div className="absolute -right-1 -bottom-1 flex size-4 items-center justify-center rounded-full bg-success">
             <Check className="size-2.5 text-white" />
           </div>
         )}
@@ -202,8 +202,12 @@ export const DataSources = ({
 }: DataSourcesProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [stravaConnected, setStravaConnected] = useState(initialStravaConnected);
-  const [garminConnected, setGarminConnected] = useState(initialGarminConnected);
+  const [stravaConnected, setStravaConnected] = useState(
+    initialStravaConnected
+  );
+  const [garminConnected, setGarminConnected] = useState(
+    initialGarminConnected
+  );
   const [isStravaDisconnecting, setIsStravaDisconnecting] = useState(false);
   const [isGarminDisconnecting, setIsGarminDisconnecting] = useState(false);
   const [garminDialogOpen, setGarminDialogOpen] = useState(false);
@@ -310,9 +314,9 @@ export const DataSources = ({
       </div>
 
       <GarminConnectDialog
-        open={garminDialogOpen}
         onOpenChange={setGarminDialogOpen}
         onSuccess={handleGarminConnectSuccess}
+        open={garminDialogOpen}
       />
     </>
   );

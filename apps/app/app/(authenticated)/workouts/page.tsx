@@ -11,7 +11,7 @@ import { apiClient } from "@/lib/api-client";
 import { Header } from "../components/header";
 import { ActivitiesList } from "./components/activities-list";
 import { DataSources } from "./components/data-sources";
-import { GarminSleepDisplay } from "./components/garmin-sleep-display";
+import { WorkoutOverviewWrapper } from "./components/workout-overview-wrapper";
 
 const title = "Workouts";
 const description = "Track and manage your workout data";
@@ -50,17 +50,11 @@ const WorkoutsPage = async () => {
     ? stravaConnection?.athleteId
     : undefined;
 
-  const garminSleepData = garminConnectionResult.connected
-    ? await apiClient.getGarminSleep({ days: 14 }).catch(() => ({ data: [] }))
-    : { data: [] };
-
   return (
     <>
       <Header page="Workouts" pages={[]} />
       <div className="flex flex-1 flex-col gap-6 p-4 pt-0">
         <DataSources
-          stravaAthleteData={stravaConnection ?? undefined}
-          stravaConnected={stravaConnectionData.connected}
           garminConnected={garminConnectionResult.connected}
           garminConnectionData={
             garminConnectionResult.connected
@@ -70,16 +64,18 @@ const WorkoutsPage = async () => {
                 }
               : undefined
           }
-        />
-
-        <GarminSleepDisplay
-          connected={garminConnectionResult.connected}
-          sleepData={garminSleepData.data}
-          lastSync={garminConnectionResult.lastSync}
+          stravaAthleteData={stravaConnection ?? undefined}
+          stravaConnected={stravaConnectionData.connected}
         />
 
         {athleteId ? (
-          <ActivitiesList athleteId={athleteId} />
+          <>
+            <WorkoutOverviewWrapper
+              athleteId={athleteId}
+              garminConnected={garminConnectionResult.connected}
+            />
+            <ActivitiesList athleteId={athleteId} />
+          </>
         ) : (
           <Empty className="flex-1">
             <EmptyHeader>

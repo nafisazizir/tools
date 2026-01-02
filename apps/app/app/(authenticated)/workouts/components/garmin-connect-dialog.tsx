@@ -48,8 +48,7 @@ export const GarminConnectDialog = ({
         setError(result.error ?? "Failed to connect");
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Connection failed";
+      const message = err instanceof Error ? err.message : "Connection failed";
       if (message.includes("MFA")) {
         setError("Please disable 2FA in Garmin Connect settings");
       } else if (
@@ -66,7 +65,7 @@ export const GarminConnectDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Connect Garmin</DialogTitle>
@@ -81,42 +80,40 @@ export const GarminConnectDialog = ({
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
+                id="email"
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
                 required
+                type="email"
+                value={email}
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
               <Input
+                disabled={isLoading}
                 id="password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                required
               />
             </div>
 
-            {error && (
-              <p className="text-destructive text-sm">{error}</p>
-            )}
+            {error && <p className="text-destructive text-sm">{error}</p>}
           </div>
 
           <DialogFooter>
             <Button
+              disabled={isLoading}
+              onClick={() => onOpenChange(false)}
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button disabled={isLoading} type="submit">
               {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
               Connect
             </Button>
