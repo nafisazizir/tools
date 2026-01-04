@@ -51,8 +51,8 @@ const data = {
           url: "/workouts",
         },
         {
-          title: "Export",
-          url: "/workouts",
+          title: "Sleep",
+          url: "/sleep",
         },
       ],
     },

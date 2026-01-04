@@ -17,10 +17,30 @@ export type SleepDataSummary = {
   quality: "excellent" | "good" | "fair" | "poor";
 };
 
+const DEFAULT_LIMIT = 365;
+
 export function useSleepQuery(days = 14) {
   return useQuery({
     queryKey: sleepKeys.data(days),
     queryFn: () => apiClient.getGarminSleep({ days }),
+  });
+}
+
+export type SleepQueryParams = {
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+};
+
+export function useSleepRangeQuery(params: SleepQueryParams = {}) {
+  return useQuery({
+    queryKey: sleepKeys.dateRange(params.startDate, params.endDate),
+    queryFn: () =>
+      apiClient.getGarminSleep({
+        startDate: params.startDate,
+        endDate: params.endDate,
+        limit: params.limit ?? DEFAULT_LIMIT,
+      }),
   });
 }
 

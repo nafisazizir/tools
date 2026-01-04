@@ -136,10 +136,24 @@ class ApiClient {
   }
 
   // Garmin Sleep
-  async getGarminSleep(params?: { days?: number }) {
+  async getGarminSleep(params?: {
+    days?: number;
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+  }) {
     const searchParams = new URLSearchParams();
     if (params?.days) {
       searchParams.append("days", params.days.toString());
+    }
+    if (params?.startDate) {
+      searchParams.append("startDate", params.startDate);
+    }
+    if (params?.endDate) {
+      searchParams.append("endDate", params.endDate);
+    }
+    if (params?.limit) {
+      searchParams.append("limit", params.limit.toString());
     }
     const query = searchParams.toString();
     return await this.request<{

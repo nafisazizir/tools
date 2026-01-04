@@ -8,4 +8,6 @@ export const activitiesKeys = {
 export const sleepKeys = {
   all: ["sleep"] as const,
   data: (days: number) => ["sleep", "data", days] as const,
+  dateRange: (startDate?: string, endDate?: string) =>
+    ["sleep", "dateRange", startDate, endDate] as const,
 };

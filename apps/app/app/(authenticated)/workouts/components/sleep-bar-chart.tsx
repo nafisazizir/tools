@@ -12,7 +12,6 @@ import {
   XAxis,
   YAxis,
 } from "@repo/design-system/components/ui/chart";
-import { cn } from "@repo/design-system/lib/utils";
 import { ChevronLeft, ChevronRight, Moon } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { SleepDataSummary } from "@/hooks/use-sleep-query";
@@ -179,55 +178,55 @@ export const SleepBarChart = ({ sleepData, isLoading }: SleepBarChartProps) => {
           <ChartTooltip
             content={
               <ChartTooltipContent
-                // formatter={(value) => (
-                //   <span className="font-medium font-mono tabular-nums">
-                //     {formatHours(value as number)}
-                //   </span>
-                // )}
-                // labelFormatter={(_, payload) => {
-                //   const data = payload?.[0]?.payload;
-                //   if (!data?.date) {
-                //     return null;
-                //   }
+              // formatter={(value) => (
+              //   <span className="font-medium font-mono tabular-nums">
+              //     {formatHours(value as number)}
+              //   </span>
+              // )}
+              // labelFormatter={(_, payload) => {
+              //   const data = payload?.[0]?.payload;
+              //   if (!data?.date) {
+              //     return null;
+              //   }
 
-                //   const formattedDate = new Date(data.date).toLocaleDateString(
-                //     "en-US",
-                //     {
-                //       weekday: "long",
-                //       month: "short",
-                //       day: "numeric",
-                //     }
-                //   );
+              //   const formattedDate = new Date(data.date).toLocaleDateString(
+              //     "en-US",
+              //     {
+              //       weekday: "long",
+              //       month: "short",
+              //       day: "numeric",
+              //     }
+              //   );
 
-                //   return (
-                //     <>
-                //       <div>{formattedDate}</div>
-                //       {data.sleepScore !== null && (
-                //         <div className="mt-1 flex items-center justify-between border-b pb-1.5">
-                //           <span className="text-muted-foreground text-xs">
-                //             Sleep Score
-                //           </span>
-                //           <span
-                //             className={cn(
-                //               "font-semibold",
-                //               qualityColors[data.quality]
-                //             )}
-                //           >
-                //             {data.sleepScore} ({data.quality})
-                //           </span>
-                //         </div>
-                //       )}
-                //       <div className="mt-1 flex items-center justify-between">
-                //         <span className="text-muted-foreground text-xs">
-                //           Total
-                //         </span>
-                //         <span className="font-medium">
-                //           {formatHours(data.totalHours)}
-                //         </span>
-                //       </div>
-                //     </>
-                //   );
-                // }}
+              //   return (
+              //     <>
+              //       <div>{formattedDate}</div>
+              //       {data.sleepScore !== null && (
+              //         <div className="mt-1 flex items-center justify-between border-b pb-1.5">
+              //           <span className="text-muted-foreground text-xs">
+              //             Sleep Score
+              //           </span>
+              //           <span
+              //             className={cn(
+              //               "font-semibold",
+              //               qualityColors[data.quality]
+              //             )}
+              //           >
+              //             {data.sleepScore} ({data.quality})
+              //           </span>
+              //         </div>
+              //       )}
+              //       <div className="mt-1 flex items-center justify-between">
+              //         <span className="text-muted-foreground text-xs">
+              //           Total
+              //         </span>
+              //         <span className="font-medium">
+              //           {formatHours(data.totalHours)}
+              //         </span>
+              //       </div>
+              //     </>
+              //   );
+              // }}
               />
             }
             cursor={{ fill: "hsl(var(--muted))", opacity: 0.3 }}
